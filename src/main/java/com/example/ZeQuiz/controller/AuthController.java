@@ -35,21 +35,19 @@ public class AuthController {
 
     @PostMapping(path = "/register")
     public ResponseEntity<?> registerNewUser(@RequestBody RegisterRequest request) {
-        // Cek jika username sudah ada
         if (userRepository.existsByUsername(request.getUsername())) {
             return ResponseEntity.badRequest().body("Username telah ada");
         }
 
-        // Cek apakah password dan konfirmasi password cocok
         if (!request.getPassword().equals(request.getConfirmPassword())) {
             return ResponseEntity.badRequest().body("Kata sandi dan konfirmasi kata sandi tidak cocok");
         }
 
-        // Simpan user baru
         User newUser = User.builder()
                 .username(request.getUsername())
-                .kata_sandi(encoder.encode(request.getPassword())) // Enkripsi password
+                .kata_sandi(encoder.encode(request.getPassword()))
                 .kelas(request.getGrade())
+                .role("SISWA") // 👉 Tetapkan role langsung jadi "SISWA"
                 .build();
 
         userRepository.save(newUser);
@@ -59,34 +57,28 @@ public class AuthController {
 
     @PostMapping(path = "/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestBody request) {
-        // Cari user berdasarkan username
         User user = userRepository.findByUsername(request.getUsername()).orElse(null);
 
-        // Jika username tidak ditemukan, kirim error
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponseBody("Username tidak ditemukan", null));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponseBody("Username tidak ditemukan", null, null));
         }
 
-        // Validasi password
         if (!encoder.matches(request.getKata_sandi(), user.getKata_sandi())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponseBody("Kata sandi salah", null));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new LoginResponseBody("Kata sandi salah", null, null));
         }
 
-        // Autentikasi user
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getKata_sandi())
         );
 
-        // Ambil detail user
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-        // Generate token JWT
         String token = jwtUtil.generateToken(user.getUsername());
 
-        // Response sukses dengan message dan token
         LoginResponseBody loginResponseBody = LoginResponseBody.builder()
                 .message("Login berhasil")
                 .token(token)
+                .role(user.getRole()) // ✅ Sertakan role dalam response
                 .build();
 
         return ResponseEntity.ok(loginResponseBody);

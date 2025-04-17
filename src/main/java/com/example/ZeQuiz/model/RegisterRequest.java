@@ -14,6 +14,7 @@ public class RegisterRequest {
     private Integer kelas;
     private String kata_sandi;
     private String konfirmasi_kata_sandi; // Tambahan untuk konfirmasi password
+    private String role; //  GURU atau SISWA
 
     public String getUsername() {
         return username;
@@ -29,5 +30,9 @@ public class RegisterRequest {
 
     public Integer getGrade() {
         return kelas;
+    }
+
+    public String getRole() {
+        return role;
     }
 }

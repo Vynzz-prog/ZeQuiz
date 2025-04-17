@@ -9,10 +9,10 @@
 ### request body :
 ```json
 {
-  "nama":"Budi",
+  "username":"Budi",
   "kelas": "4",
   "kata_sandi" : "rahasia",
-  "konfirmasi_kata_sandi" : "rahasia" 
+  "konfirmasi_kata_sandi" : "rahasia"
 }
 ```
 
