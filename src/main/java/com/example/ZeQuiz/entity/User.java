@@ -25,7 +25,7 @@ public class User {
     @Column(name = "kelas", nullable = false)
     private Integer kelas;
 
-    @Column(name = "role", nullable = false) // ✅ Tambahan field role
+    @Column(name = "role", nullable = false)
     private String role;
 
     public String getPassword() {

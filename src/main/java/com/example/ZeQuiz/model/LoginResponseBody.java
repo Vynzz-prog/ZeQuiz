@@ -12,5 +12,7 @@ import lombok.NoArgsConstructor;
 public class LoginResponseBody {
     private String message;
     private String token;
-    private String role; // ✅ Ditambahkan untuk mengirim peran user
+    private String role;
+    private String username;
+    private Integer kelas;
 }
