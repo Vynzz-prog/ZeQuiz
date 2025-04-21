@@ -36,29 +36,42 @@ public class AuthController {
 
     @PostMapping(path = "/register")
     public ResponseEntity<?> registerNewUser(@RequestBody RegisterRequest request) {
+        // Validasi apakah username sudah ada
         if (userRepository.existsByUsername(request.getUsername())) {
             return ResponseEntity
                     .badRequest()
                     .body(Map.of("message", "Username telah ada"));
         }
 
+        // Validasi apakah password dan konfirmasi password cocok
         if (!request.getPassword().equals(request.getConfirmPassword())) {
             return ResponseEntity
                     .badRequest()
                     .body(Map.of("message", "Kata sandi dan konfirmasi kata sandi tidak cocok"));
         }
 
+        // Validasi apakah kelas berada di antara 4 dan 6
+        if (request.getGrade() < 4 || request.getGrade() > 6) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("message", "Kelas yang dapat mendaftar hanya kelas 4, 5, dan 6"));
+        }
+
+        // Buat pengguna baru
         User newUser = User.builder()
                 .username(request.getUsername())
                 .kata_sandi(encoder.encode(request.getPassword()))
                 .kelas(request.getGrade())
-                .role("SISWA") // Tetapkan role langsung jadi "SISWA"
+                .role(request.getRole() != null ? request.getRole() : "SISWA") // Role default "SISWA"
                 .build();
 
+        // Simpan pengguna ke database
         userRepository.save(newUser);
 
+        // Berikan respons sukses
         return ResponseEntity.ok(Map.of("message", "Registrasi berhasil"));
     }
+
 
     @PostMapping(path = "/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestBody request) {
