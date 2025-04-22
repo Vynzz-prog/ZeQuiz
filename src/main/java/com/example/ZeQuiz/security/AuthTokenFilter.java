@@ -19,7 +19,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtils;
     private final CustomUserDetailService userDetailsService;
 
-    // Endpoint yang tidak perlu token
+    // Daftar endpoint publik (tidak perlu token)
     private final List<String> publicEndpoints = List.of(
             "/zequiz/auth/register",
             "/zequiz/auth/login"
@@ -41,8 +41,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         System.out.println("🔍 Request URI: " + path);
         System.out.println("🔍 Authorization Header: " + authHeader);
 
-        // Skip filter jika endpoint publik
-        if (publicEndpoints.contains(path)) {
+        // Cek jika termasuk endpoint publik
+        if (path != null && publicEndpoints.stream().anyMatch(path::startsWith)) {
             System.out.println("🟢 Public endpoint — skipping filter.");
             filterChain.doFilter(request, response);
             return;
@@ -78,7 +78,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
         if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
-            return headerAuth.substring(7);
+            return headerAuth.substring(7); // Ambil hanya tokennya
         }
         return null;
     }

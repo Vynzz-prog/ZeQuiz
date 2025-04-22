@@ -22,11 +22,13 @@ public class User {
     @Column(name = "kata_sandi", nullable = false)
     private String kata_sandi;
 
-    @Column(name = "kelas", nullable = false)
-    private Integer kelas;
-
     @Column(name = "role", nullable = false)
     private String role;
+
+    @ManyToOne
+    @JoinColumn(name = "kelas_id", nullable = false)
+    private Kelas kelas;
+
 
     public String getPassword() {
         return kata_sandi;

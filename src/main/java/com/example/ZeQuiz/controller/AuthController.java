@@ -1,9 +1,11 @@
 package com.example.ZeQuiz.controller;
 
+import com.example.ZeQuiz.entity.Kelas;
 import com.example.ZeQuiz.entity.User;
 import com.example.ZeQuiz.model.LoginRequestBody;
 import com.example.ZeQuiz.model.LoginResponseBody;
 import com.example.ZeQuiz.model.RegisterRequest;
+import com.example.ZeQuiz.repository.KelasRepository;
 import com.example.ZeQuiz.repository.UserRepository;
 import com.example.ZeQuiz.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,9 @@ public class AuthController {
     private UserRepository userRepository;
 
     @Autowired
+    private KelasRepository kelasRepository;
+
+    @Autowired
     PasswordEncoder encoder;
 
     @Autowired
@@ -50,28 +55,28 @@ public class AuthController {
                     .body(Map.of("message", "Kata sandi dan konfirmasi kata sandi tidak cocok"));
         }
 
-        // Validasi apakah kelas berada di antara 4 dan 6
+        // Validasi kelas (grade)
         if (request.getGrade() < 4 || request.getGrade() > 6) {
             return ResponseEntity
                     .badRequest()
                     .body(Map.of("message", "Kelas yang dapat mendaftar hanya kelas 4, 5, dan 6"));
         }
 
+        // Ambil object Kelas
+        Kelas kelas = kelasRepository.findByNama("Kelas " + request.getGrade())
+                .orElseThrow(() -> new RuntimeException("Kelas tidak ditemukan di database"));
+
         // Buat pengguna baru
         User newUser = User.builder()
                 .username(request.getUsername())
                 .kata_sandi(encoder.encode(request.getPassword()))
-                .kelas(request.getGrade())
-                .role(request.getRole() != null ? request.getRole() : "SISWA") // Role default "SISWA"
+                .kelas(kelas)
+                .role(request.getRole() != null ? request.getRole() : "SISWA")
                 .build();
 
-        // Simpan pengguna ke database
         userRepository.save(newUser);
-
-        // Berikan respons sukses
         return ResponseEntity.ok(Map.of("message", "Registrasi berhasil"));
     }
-
 
     @PostMapping(path = "/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestBody request) {
@@ -79,16 +84,16 @@ public class AuthController {
 
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    LoginResponseBody.builder()  // Gunakan builder
+                    LoginResponseBody.builder()
                             .message("Username tidak ditemukan")
-                            .build());  // Hanya mengisi message dan membiarkan parameter lain null
+                            .build());
         }
 
         if (!encoder.matches(request.getKata_sandi(), user.getKata_sandi())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-                    LoginResponseBody.builder()  // Gunakan builder
+                    LoginResponseBody.builder()
                             .message("Kata sandi salah")
-                            .build());  // Hanya mengisi message dan membiarkan parameter lain null
+                            .build());
         }
 
         Authentication authentication = authenticationManager.authenticate(
@@ -96,7 +101,6 @@ public class AuthController {
         );
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-
         String token = jwtUtil.generateToken(user.getUsername());
 
         LoginResponseBody loginResponseBody = LoginResponseBody.builder()
@@ -104,12 +108,11 @@ public class AuthController {
                 .token(token)
                 .role(user.getRole())
                 .username(user.getUsername())
-                .kelas(user.getKelas())
+                .kelas(user.getKelas().getNama()) // hanya nama kelas yang dikembalikan
                 .build();
 
         return ResponseEntity.ok(loginResponseBody);
     }
-
 
     @PostMapping(path = "/logout")
     public ResponseEntity<?> logout() {

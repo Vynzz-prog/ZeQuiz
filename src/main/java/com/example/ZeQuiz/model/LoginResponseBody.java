@@ -14,5 +14,5 @@ public class LoginResponseBody {
     private String token;
     private String role;
     private String username;
-    private Integer kelas;
+    private String kelas; // ganti dari Integer → String karena akan mengembalikan nama kelas, seperti "Kelas 4"
 }

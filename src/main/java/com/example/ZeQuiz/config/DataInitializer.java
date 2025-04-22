@@ -1,6 +1,8 @@
 package com.example.ZeQuiz.config;
 
+import com.example.ZeQuiz.entity.Kelas;
 import com.example.ZeQuiz.entity.User;
+import com.example.ZeQuiz.repository.KelasRepository;
 import com.example.ZeQuiz.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -11,15 +13,25 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class DataInitializer {
 
     @Bean
-    public CommandLineRunner init(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public CommandLineRunner init(UserRepository userRepository, KelasRepository kelasRepository, PasswordEncoder passwordEncoder) {
         return args -> {
+
+            // Inisialisasi kelas 4, 5, 6 jika belum ada
+            Kelas kelas4 = kelasRepository.findByNama("Kelas 4").orElseGet(() ->
+                    kelasRepository.save(Kelas.builder().nama("Kelas 4").build()));
+
+            Kelas kelas5 = kelasRepository.findByNama("Kelas 5").orElseGet(() ->
+                    kelasRepository.save(Kelas.builder().nama("Kelas 5").build()));
+
+            Kelas kelas6 = kelasRepository.findByNama("Kelas 6").orElseGet(() ->
+                    kelasRepository.save(Kelas.builder().nama("Kelas 6").build()));
 
             // Akun guru 1
             if (!userRepository.existsByUsername("guru1")) {
                 User guru1 = User.builder()
                         .username("guru1")
                         .kata_sandi(passwordEncoder.encode("password1"))
-                        .kelas(4)
+                        .kelas(kelas4) // pakai object kelas
                         .role("GURU")
                         .build();
                 userRepository.save(guru1);
@@ -31,7 +43,7 @@ public class DataInitializer {
                 User guru2 = User.builder()
                         .username("guru2")
                         .kata_sandi(passwordEncoder.encode("password2"))
-                        .kelas(5)
+                        .kelas(kelas5)
                         .role("GURU")
                         .build();
                 userRepository.save(guru2);
@@ -40,16 +52,15 @@ public class DataInitializer {
 
             // Guru 3
             if (!userRepository.existsByUsername("guru3")) {
-                User guru2 = User.builder()
+                User guru3 = User.builder()
                         .username("guru3")
                         .kata_sandi(passwordEncoder.encode("password3"))
-                        .kelas(6)
+                        .kelas(kelas6)
                         .role("GURU")
                         .build();
-                userRepository.save(guru2);
+                userRepository.save(guru3);
                 System.out.println("✅ Akun guru3 berhasil dibuat");
             }
         };
     }
 }
-

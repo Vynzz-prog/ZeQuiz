@@ -1,20 +1,22 @@
 package com.example.ZeQuiz.controller;
 
-import com.example.ZeQuiz.entity.Skor;
 import com.example.ZeQuiz.entity.Kuis;
+import com.example.ZeQuiz.entity.Skor;
 import com.example.ZeQuiz.entity.User;
 import com.example.ZeQuiz.model.JawabanSiswa;
+import com.example.ZeQuiz.service.KuisService;
 import com.example.ZeQuiz.service.SkorService;
 import com.example.ZeQuiz.service.UserService;
-import com.example.ZeQuiz.service.KuisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("zequiz/skor")
+@RequestMapping("/zequiz/skor")
 public class SkorController {
 
     @Autowired
@@ -26,30 +28,26 @@ public class SkorController {
     @Autowired
     private KuisService kuisService;
 
+    // Hitung skor setelah siswa menyelesaikan kuis
     @PostMapping("/hitung")
     public ResponseEntity<Skor> hitungSkor(@RequestBody List<JawabanSiswa> jawabanSiswaList,
-                                           @RequestParam Long userId,
-                                           @RequestParam Long kuisId) {
-        User user = userService.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User tidak ditemukan"));
-
-        Kuis kuis = kuisService.findById(kuisId)
-                .orElseThrow(() -> new RuntimeException("Kuis tidak ditemukan"));
+                                           @RequestParam Long kuisId,
+                                           @AuthenticationPrincipal UserDetails userDetails) {
+        User user = userService.findByUsername(userDetails.getUsername());
+        Kuis kuis = kuisService.findById(kuisId); // ✅ perbaikan di sini
 
         Skor skor = skorService.hitungSkor(user, kuis, jawabanSiswaList);
         return ResponseEntity.ok(skor);
     }
 
-    @GetMapping("/kuis/{kuisId}/siswa/{userId}")
+    // Ambil skor siswa untuk suatu kuis
+    @GetMapping("/kuis/{kuisId}")
     public ResponseEntity<Skor> getSkor(@PathVariable Long kuisId,
-                                        @PathVariable Long userId) {
-        User user = userService.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User tidak ditemukan"));
+                                        @AuthenticationPrincipal UserDetails userDetails) {
+        User user = userService.findByUsername(userDetails.getUsername());
+        Kuis kuis = kuisService.findById(kuisId); // ✅ perbaikan di sini
 
-        Kuis kuis = kuisService.findById(kuisId)
-                .orElseThrow(() -> new RuntimeException("Kuis tidak ditemukan"));
-
-        Skor skor = skorService.getSkorByUserAndKuis(user, kuis); // pakai 'siswa' di dalam service
+        Skor skor = skorService.getSkorByUserAndKuis(user, kuis);
         return ResponseEntity.ok(skor);
     }
 }
