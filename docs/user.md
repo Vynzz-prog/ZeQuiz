@@ -38,7 +38,7 @@
 ### request body :
 ```json
 {
-  "nama":"Budi",
+  "username":"Budi",
   "kata_sandi" : "rahasia"
 }
 ```
@@ -47,13 +47,27 @@
 ```json
 {
   "pesan" : "Login Berhasil",
-  "token" : "jduydgaydhdwkdjiu"
+  "token" : "jduydgaydhdwkdjiu",
+  "role": "SISWA",
+  "username": "Budi",
+  "kelas": 4
 }
 ```
 
 ### response body (Faild) :
 ```json
 {
-  "pesan" : "Ada bagian yang masih kosong ato error"
+  "message": "Username tidak ditemukan",
+  "token": null,
+  "role": null,
+  "username": null,
+  "kelas": null,
+
+
+  "message": "Kata sandi salah",
+  "token": null,
+  "role": null,
+  "username": null,
+  "kelas": null
 }
 ```
