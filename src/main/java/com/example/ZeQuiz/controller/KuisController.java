@@ -1,9 +1,13 @@
 package com.example.ZeQuiz.controller;
 
 import com.example.ZeQuiz.entity.Kuis;
+import com.example.ZeQuiz.entity.User;
 import com.example.ZeQuiz.service.KuisService;
+import com.example.ZeQuiz.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,17 +19,21 @@ public class KuisController {
     @Autowired
     private KuisService kuisService;
 
+    @Autowired
+    private UserService userService;
+
     /**
      * Endpoint untuk guru membuat kuis.
-     * Sistem otomatis mengatur guru dan kelas berdasarkan userId,
+     * Sistem otomatis mengatur guru dan kelas berdasarkan user yang sedang login,
      * dan menambahkan soal berdasarkan topik yang dipilih.
      */
     @PostMapping("/buat")
-    public ResponseEntity<?> buatKuis(@RequestParam Long userId,
-                                      @RequestParam Long topikId,
-                                      @RequestBody Kuis kuisInput) {
+    public ResponseEntity<?> buatKuis(@RequestParam Long topikId,
+                                      @RequestBody Kuis kuisInput,
+                                      @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            Kuis kuis = kuisService.buatKuis(userId, topikId, kuisInput);
+            User guru = userService.findByUsername(userDetails.getUsername());
+            Kuis kuis = kuisService.buatKuis(guru.getId(), topikId, kuisInput);
             return ResponseEntity.ok(kuis);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

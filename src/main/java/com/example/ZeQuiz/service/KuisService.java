@@ -33,27 +33,30 @@ public class KuisService {
         User guru = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Guru tidak ditemukan"));
 
+        if (!"GURU".equalsIgnoreCase(guru.getRole())) {
+            throw new RuntimeException("Hanya guru yang dapat membuat kuis");
+        }
+
         Topik topik = topikRepository.findById(topikId)
                 .orElseThrow(() -> new RuntimeException("Topik tidak ditemukan"));
 
-        // Cek agar guru hanya buat kuis di kelasnya
         if (!topik.getKelas().getId().equals(guru.getKelas().getId())) {
             throw new RuntimeException("Topik bukan milik kelas guru");
         }
 
-        // Set data otomatis
+        List<Soal> soalList = soalRepository.findRandomSoalByTopikId(
+                topikId, PageRequest.of(0, kuisInput.getJumlahSoal()));
+
+        if (soalList.size() < kuisInput.getJumlahSoal()) {
+            throw new RuntimeException("Jumlah soal pada topik tidak mencukupi");
+        }
+
         kuisInput.setGuru(guru);
         kuisInput.setKelas(guru.getKelas());
         kuisInput.setTopik(topik);
 
-        // Simpan kuis terlebih dahulu
         Kuis savedKuis = kuisRepository.save(kuisInput);
 
-        // Ambil soal secara acak berdasarkan topik
-        List<Soal> soalList = soalRepository.findRandomSoalByTopikId(
-                topikId, PageRequest.of(0, kuisInput.getJumlahSoal()));
-
-        // Tambahkan soal ke dalam kuis
         for (Soal soal : soalList) {
             KuisSoal kuisSoal = KuisSoal.builder()
                     .kuis(savedKuis)
@@ -61,6 +64,8 @@ public class KuisService {
                     .build();
             kuisSoalRepository.save(kuisSoal);
         }
+
+        System.out.println("✅ Guru " + guru.getUsername() + " membuat kuis untuk topik: " + topik.getNama());
 
         return savedKuis;
     }
