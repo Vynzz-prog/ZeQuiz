@@ -23,60 +23,57 @@ public class SoalService {
     @Autowired
     private UserRepository userRepository;
 
-    /**
-     * Menambahkan soal ke dalam topik, hanya jika guru berasal dari kelas yang sesuai.
-     */
+    //Menambahkan soal ke dalam topik, sesuai kelas guru.
     public Soal tambahSoal(Long userId, Long topikId, Soal inputSoal) {
         User guru = getGuruById(userId);
         Topik topik = getTopikById(topikId);
 
         // Validasi kelas topik harus sama dengan kelas guru
         if (!topik.getKelas().getId().equals(guru.getKelas().getId())) {
-            throw new RuntimeException("❌ Topik bukan milik kelas guru ini");
+            throw new RuntimeException("Topik bukan milik kelas guru ini");
         }
 
         inputSoal.setTopik(topik);
         return soalRepository.save(inputSoal);
     }
 
-    /**
-     * Menghapus soal jika guru berasal dari kelas yang sesuai.
-     */
+    //Menghapus soal sesuai kelas guru.
+
     public void hapusSoal(Long soalId, Long userId) {
         Soal soal = soalRepository.findById(soalId)
-                .orElseThrow(() -> new RuntimeException("❌ Soal tidak ditemukan"));
+                .orElseThrow(() -> new RuntimeException("Soal tidak ditemukan"));
 
         User guru = getGuruById(userId);
 
         if (!soal.getTopik().getKelas().getId().equals(guru.getKelas().getId())) {
-            throw new RuntimeException("❌ Guru tidak memiliki akses untuk menghapus soal ini");
+            throw new RuntimeException("Guru tidak memiliki akses untuk menghapus soal ini");
         }
 
         soalRepository.delete(soal);
     }
 
-    /**
-     * Mengambil semua soal dalam topik jika guru berasal dari kelas yang sesuai.
-     */
+
+     // Mengambil semua soal dalam topik, sesuai kelas guru.
+
     public List<Soal> getSoalByTopik(Long topikId, Long userId) {
         User guru = getGuruById(userId);
         Topik topik = getTopikById(topikId);
 
         if (!topik.getKelas().getId().equals(guru.getKelas().getId())) {
-            throw new RuntimeException("❌ Guru tidak memiliki akses ke topik ini");
+            throw new RuntimeException("Guru tidak memiliki akses ke topik ini");
         }
 
         return soalRepository.findByTopik(topik);
     }
 
-    // 🔧 Helper methods untuk ambil guru dan topik
+
     private User getGuruById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("❌ Guru tidak ditemukan"));
+                .orElseThrow(() -> new RuntimeException("Guru tidak ditemukan"));
     }
 
     private Topik getTopikById(Long topikId) {
         return topikRepository.findById(topikId)
-                .orElseThrow(() -> new RuntimeException("❌ Topik tidak ditemukan"));
+                .orElseThrow(() -> new RuntimeException("Topik tidak ditemukan"));
     }
 }

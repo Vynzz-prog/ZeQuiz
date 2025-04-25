@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/zequiz/skor")
@@ -28,26 +29,62 @@ public class SkorController {
     @Autowired
     private KuisService kuisService;
 
-    // Hitung skor setelah siswa menyelesaikan kuis
+    /**
+     * Endpoint untuk siswa menghitung dan menyimpan skor kuis.
+     */
     @PostMapping("/hitung")
-    public ResponseEntity<Skor> hitungSkor(@RequestBody List<JawabanSiswa> jawabanSiswaList,
-                                           @RequestParam Long kuisId,
-                                           @AuthenticationPrincipal UserDetails userDetails) {
-        User user = userService.findByUsername(userDetails.getUsername());
-        Kuis kuis = kuisService.findById(kuisId); // ✅ perbaikan di sini
+    public ResponseEntity<?> hitungSkor(@RequestBody List<JawabanSiswa> jawabanSiswaList,
+                                        @RequestParam Long kuisId,
+                                        @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            User user = userService.findByUsername(userDetails.getUsername());
+            Kuis kuis = kuisService.findById(kuisId);
 
-        Skor skor = skorService.hitungSkor(user, kuis, jawabanSiswaList);
-        return ResponseEntity.ok(skor);
+            Skor skor = skorService.hitungSkor(user, kuis, jawabanSiswaList);
+            return ResponseEntity.ok(skor);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
-    // Ambil skor siswa untuk suatu kuis
+    /**
+     * Endpoint untuk siswa mengambil skornya sendiri untuk suatu kuis.
+     */
     @GetMapping("/kuis/{kuisId}")
-    public ResponseEntity<Skor> getSkor(@PathVariable Long kuisId,
-                                        @AuthenticationPrincipal UserDetails userDetails) {
-        User user = userService.findByUsername(userDetails.getUsername());
-        Kuis kuis = kuisService.findById(kuisId); // ✅ perbaikan di sini
+    public ResponseEntity<?> getSkor(@PathVariable Long kuisId,
+                                     @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            User user = userService.findByUsername(userDetails.getUsername());
+            Kuis kuis = kuisService.findById(kuisId);
 
-        Skor skor = skorService.getSkorByUserAndKuis(user, kuis);
-        return ResponseEntity.ok(skor);
+            Skor skor = skorService.getSkorByUserAndKuis(user, kuis);
+            return ResponseEntity.ok(skor);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * Endpoint untuk guru melihat semua skor siswa pada suatu kuis.
+     */
+    @GetMapping("/guru/kuis/{kuisId}")
+    public ResponseEntity<?> getSkorSiswaByKuis(@PathVariable Long kuisId,
+                                                @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            User guru = userService.findByUsername(userDetails.getUsername());
+            Kuis kuis = kuisService.findById(kuisId);
+
+            // Validasi guru hanya bisa akses kuis di kelasnya
+            if (!kuis.getKelas().getId().equals(guru.getKelas().getId())) {
+                return ResponseEntity.status(403).body(Map.of("error", "Akses ditolak ke kuis ini"));
+            }
+
+            // Ambil semua siswa dari kelas guru
+            List<User> siswaList = userService.getSiswaByKelas(guru.getKelas());
+
+            return ResponseEntity.ok(skorService.getStatusPengerjaanKuis(kuis, siswaList));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 }

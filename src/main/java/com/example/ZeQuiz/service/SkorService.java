@@ -1,15 +1,15 @@
 package com.example.ZeQuiz.service;
 
+import com.example.ZeQuiz.dto.SiswaSkorDTO;
 import com.example.ZeQuiz.entity.*;
-import com.example.ZeQuiz.repository.KuisSoalRepository;
-import com.example.ZeQuiz.repository.SkorRepository;
-import com.example.ZeQuiz.repository.SoalRepository;
 import com.example.ZeQuiz.model.JawabanSiswa;
+import com.example.ZeQuiz.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class SkorService {
@@ -23,6 +23,12 @@ public class SkorService {
     @Autowired
     private SoalRepository soalRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    /**
+     * Hitung skor akhir siswa berdasarkan jawaban.
+     */
     public Skor hitungSkor(User user, Kuis kuis, List<JawabanSiswa> jawabanSiswaList) {
         double score = 0;
 
@@ -39,7 +45,7 @@ public class SkorService {
         }
 
         Skor skor = new Skor();
-        skor.setSiswa(user); // penting: setSiswa (bukan user)
+        skor.setSiswa(user);
         skor.setKuis(kuis);
         skor.setSkor((int) score);
         skor.setWaktuSelesai(LocalDateTime.now());
@@ -47,12 +53,40 @@ public class SkorService {
         return skorRepository.save(skor);
     }
 
+    /**
+     * Ambil skor berdasarkan user dan kuis.
+     */
     public Skor getSkorByUserAndKuis(User user, Kuis kuis) {
         return skorRepository.findBySiswaAndKuis(user, kuis)
                 .orElseThrow(() -> new RuntimeException("Skor tidak ditemukan"));
     }
 
+    /**
+     * Ambil semua skor yang terkait dengan kuis.
+     */
     public List<Skor> getSkorByKuis(Kuis kuis) {
         return skorRepository.findByKuis(kuis);
+    }
+
+    /**
+     * Mendapatkan status pengerjaan kuis oleh siswa dalam satu kelas dengan format DTO.
+     */
+    public List<SiswaSkorDTO> getStatusPengerjaanKuis(Kuis kuis, List<User> siswaList) {
+        List<Skor> skorList = skorRepository.findByKuis(kuis);
+        Map<Long, Skor> skorMap = skorList.stream()
+                .collect(Collectors.toMap(s -> s.getSiswa().getId(), s -> s));
+
+        List<SiswaSkorDTO> hasil = new ArrayList<>();
+
+        for (User siswa : siswaList) {
+            Skor skor = skorMap.get(siswa.getId());
+            if (skor != null) {
+                hasil.add(new SiswaSkorDTO(siswa.getId(), siswa.getUsername(), skor.getSkor(), "Sudah mengerjakan"));
+            } else {
+                hasil.add(new SiswaSkorDTO(siswa.getId(), siswa.getUsername(), null, "Belum mengerjakan"));
+            }
+        }
+
+        return hasil;
     }
 }

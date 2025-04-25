@@ -44,4 +44,17 @@ public class TopikController {
         List<Topik> topikList = topikService.getTopikByUser(user.getId());
         return ResponseEntity.ok(topikList);
     }
+
+    @DeleteMapping("/hapus/{topikId}")
+    public ResponseEntity<?> hapusTopik(@PathVariable Long topikId,
+                                        @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            User guru = userService.findByUsername(userDetails.getUsername());
+            topikService.hapusTopik(topikId, guru);
+            return ResponseEntity.ok(Map.of("message", "Topik berhasil dihapus"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
 }
