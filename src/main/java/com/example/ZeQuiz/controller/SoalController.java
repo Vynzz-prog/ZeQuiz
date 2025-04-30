@@ -48,10 +48,10 @@ public class SoalController {
 
         if (gambarFile != null && !gambarFile.isEmpty()) {
             soal.setGambar(gambarFile.getOriginalFilename());
-            // ❗ Kalau ingin menyimpan fisik file, perlu tambahkan file.transferTo() di sini
+            // ❗ Kalau mau, bisa tambahkan simpan file gambar fisik di sini
         }
 
-        Soal created = soalService.tambahSoal(guru.getId(), topikId, soal);
+        Soal created = soalService.tambahSoal(guru, topikId, soal);  // ✅ kirim User, bukan ID
         return ResponseEntity.ok(created);
     }
 
@@ -60,7 +60,7 @@ public class SoalController {
     public ResponseEntity<String> hapusSoal(@PathVariable Long soalId,
                                             @AuthenticationPrincipal UserDetails userDetails) {
         User guru = userService.findByUsername(userDetails.getUsername());
-        soalService.hapusSoal(soalId, guru.getId());
+        soalService.hapusSoal(soalId, guru);  // ✅ kirim User, bukan ID
         return ResponseEntity.ok("Soal berhasil dihapus");
     }
 
@@ -69,7 +69,7 @@ public class SoalController {
     public ResponseEntity<List<Soal>> getSoalByTopik(@PathVariable Long topikId,
                                                      @AuthenticationPrincipal UserDetails userDetails) {
         User guru = userService.findByUsername(userDetails.getUsername());
-        List<Soal> soalList = soalService.getSoalByTopik(topikId, guru.getId());
+        List<Soal> soalList = soalService.getSoalByTopik(topikId, guru);  // ✅ kirim User, bukan ID
         return ResponseEntity.ok(soalList);
     }
 }

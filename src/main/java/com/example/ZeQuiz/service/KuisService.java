@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class KuisService {
@@ -29,7 +31,11 @@ public class KuisService {
     @Autowired
     private KelasRepository kelasRepository;
 
+    /**
+     * Membuat kuis baru oleh guru berdasarkan topik tertentu.
+     */
     public Kuis buatKuis(Long userId, Long topikId, Kuis kuisInput) {
+        // Cari guru
         User guru = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Guru tidak ditemukan"));
 
@@ -37,6 +43,7 @@ public class KuisService {
             throw new RuntimeException("Hanya guru yang dapat membuat kuis");
         }
 
+        // Cari topik
         Topik topik = topikRepository.findById(topikId)
                 .orElseThrow(() -> new RuntimeException("Topik tidak ditemukan"));
 
@@ -44,6 +51,7 @@ public class KuisService {
             throw new RuntimeException("Topik bukan milik kelas guru");
         }
 
+        // Ambil soal secara acak dari topik
         List<Soal> soalList = soalRepository.findRandomSoalByTopikId(
                 topikId, PageRequest.of(0, kuisInput.getJumlahSoal()));
 
@@ -51,12 +59,16 @@ public class KuisService {
             throw new RuntimeException("Jumlah soal pada topik tidak mencukupi");
         }
 
+        // Set data kuis
         kuisInput.setGuru(guru);
         kuisInput.setKelas(guru.getKelas());
         kuisInput.setTopik(topik);
+        kuisInput.setTanggal(LocalDate.now()); // 🔥 Set tanggal otomatis
 
+        // Simpan kuis
         Kuis savedKuis = kuisRepository.save(kuisInput);
 
+        // Simpan relasi kuis-soal
         for (Soal soal : soalList) {
             KuisSoal kuisSoal = KuisSoal.builder()
                     .kuis(savedKuis)
@@ -65,19 +77,36 @@ public class KuisService {
             kuisSoalRepository.save(kuisSoal);
         }
 
-        System.out.println("✅ Guru " + guru.getUsername() + " membuat kuis untuk topik: " + topik.getNama());
+        System.out.println("✅ Guru " + guru.getUsername() + " membuat kuis baru di topik: " + topik.getNama());
 
         return savedKuis;
     }
 
+    /**
+     * Mengambil semua kuis berdasarkan kelas.
+     */
     public List<Kuis> getKuisByKelas(Long kelasId) {
         Kelas kelas = kelasRepository.findById(kelasId)
                 .orElseThrow(() -> new RuntimeException("Kelas tidak ditemukan"));
         return kuisRepository.findByKelas(kelas);
     }
 
+    /**
+     * Cari kuis berdasarkan ID.
+     */
     public Kuis findById(Long id) {
         return kuisRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Kuis tidak ditemukan"));
     }
+
+    public List<Soal> getSoalDariKuis(Long kuisId) {
+        Kuis kuis = kuisRepository.findById(kuisId)
+                .orElseThrow(() -> new RuntimeException("Kuis tidak ditemukan"));
+
+        List<KuisSoal> kuisSoalList = kuisSoalRepository.findByKuis(kuis);
+        return kuisSoalList.stream()
+                .map(KuisSoal::getSoal)
+                .collect(Collectors.toList());
+    }
+
 }

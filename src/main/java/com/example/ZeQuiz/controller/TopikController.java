@@ -23,21 +23,27 @@ public class TopikController {
     @Autowired
     private UserService userService;
 
-    // Buat topik (kelas diambil otomatis dari akun guru yang sedang login)
+    // ✅ Buat topik (kelas diambil otomatis dari akun guru yang sedang login)
     @PostMapping("/buat")
-    public ResponseEntity<Topik> buatTopik(@RequestBody Map<String, String> body,
-                                           @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> buatTopik(@RequestBody Map<String, String> body,
+                                       @AuthenticationPrincipal UserDetails userDetails) {
         String namaTopik = body.get("namaTopik");
         if (namaTopik == null || namaTopik.isBlank()) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(Map.of("error", "Nama topik tidak boleh kosong"));
         }
 
         User user = userService.findByUsername(userDetails.getUsername());
+
+        // ✅ Cek hanya guru yang bisa buat topik
+        if (!"GURU".equalsIgnoreCase(user.getRole())) {
+            return ResponseEntity.status(403).body(Map.of("error", "Hanya guru yang dapat membuat topik"));
+        }
+
         Topik topik = topikService.buatTopik(namaTopik, user.getId());
         return ResponseEntity.ok(topik);
     }
 
-    // Ambil semua topik untuk user yang sedang login
+    // ✅ Ambil semua topik untuk user yang sedang login
     @GetMapping("/my")
     public ResponseEntity<List<Topik>> getTopikByUser(@AuthenticationPrincipal UserDetails userDetails) {
         User user = userService.findByUsername(userDetails.getUsername());
@@ -45,16 +51,22 @@ public class TopikController {
         return ResponseEntity.ok(topikList);
     }
 
+    // ✅ Hapus topik (hanya bisa dilakukan oleh guru)
     @DeleteMapping("/hapus/{topikId}")
     public ResponseEntity<?> hapusTopik(@PathVariable Long topikId,
                                         @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            User guru = userService.findByUsername(userDetails.getUsername());
-            topikService.hapusTopik(topikId, guru);
+            User user = userService.findByUsername(userDetails.getUsername());
+
+            // ✅ Cek hanya guru yang bisa hapus topik
+            if (!"GURU".equalsIgnoreCase(user.getRole())) {
+                return ResponseEntity.status(403).body(Map.of("error", "Hanya guru yang dapat menghapus topik"));
+            }
+
+            topikService.hapusTopik(topikId, user);
             return ResponseEntity.ok(Map.of("message", "Topik berhasil dihapus"));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
-
 }

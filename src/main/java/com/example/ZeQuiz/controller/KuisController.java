@@ -1,16 +1,27 @@
 package com.example.ZeQuiz.controller;
 
+import com.example.ZeQuiz.dto.KuisResponseDTO;
+import com.example.ZeQuiz.dto.SoalDTO;
 import com.example.ZeQuiz.entity.Kuis;
 import com.example.ZeQuiz.entity.User;
+import com.example.ZeQuiz.entity.KuisSoal;
+import com.example.ZeQuiz.entity.Soal;
 import com.example.ZeQuiz.service.KuisService;
 import com.example.ZeQuiz.service.UserService;
+import com.example.ZeQuiz.repository.KuisSoalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import java.util.stream.Collectors;
 
+
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
+import java.util.Comparator;
 
 @RestController
 @RequestMapping("/zequiz/kuis")
@@ -22,10 +33,11 @@ public class KuisController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private KuisSoalRepository kuisSoalRepository;
+
     /**
-     * Endpoint untuk guru membuat kuis.
-     * Sistem otomatis mengatur guru dan kelas berdasarkan user yang sedang login,
-     * dan menambahkan soal berdasarkan topik yang dipilih.
+     * Guru membuat kuis, response disederhanakan tanpa password atau objek guru.
      */
     @PostMapping("/buat")
     public ResponseEntity<?> buatKuis(@RequestParam Long topikId,
@@ -34,22 +46,75 @@ public class KuisController {
         try {
             User guru = userService.findByUsername(userDetails.getUsername());
             Kuis kuis = kuisService.buatKuis(guru.getId(), topikId, kuisInput);
-            return ResponseEntity.ok(kuis);
+            return ResponseEntity.ok(Map.of(
+                    "id", kuis.getId(),
+                    "timer", kuis.getTimer(),
+                    "jumlahSoal", kuis.getJumlahSoal(),
+                    "tanggal", kuis.getTanggal().format(DateTimeFormatter.ISO_DATE),
+                    "topik", Map.of(
+                            "id", kuis.getTopik().getId(),
+                            "nama", kuis.getTopik().getNama()
+                    ),
+                    "kelas", Map.of(
+                            "id", kuis.getKelas().getId(),
+                            "nama", kuis.getKelas().getNama()
+                    )
+            ));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     /**
-     * Endpoint untuk mengambil semua kuis berdasarkan kelas tertentu.
+     * Ambil daftar kuis untuk suatu kelas, response via DTO.
      */
     @GetMapping("/kelas/{kelasId}")
     public ResponseEntity<?> getKuisByKelas(@PathVariable Long kelasId) {
         try {
             List<Kuis> kuisList = kuisService.getKuisByKelas(kelasId);
-            return ResponseEntity.ok(kuisList);
+            List<KuisResponseDTO> responseList = kuisList.stream()
+                    .map(k -> KuisResponseDTO.builder()
+                            .id(k.getId())
+                            .timer(k.getTimer())
+                            .jumlahSoal(k.getJumlahSoal())
+                            .tanggal(k.getTanggal().toString())
+                            .namaTopik(k.getTopik().getNama())
+                            .build())
+                    .toList();
+            return ResponseEntity.ok(responseList);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
+    /**
+     * Siswa ambil soal dalam kuis tanpa jawaban benar.
+     */
+    @GetMapping("/{kuisId}/soal")
+    public ResponseEntity<?> getSoalByKuis(
+            @PathVariable Long kuisId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        User user = userService.findByUsername(userDetails.getUsername());
+        Kuis kuis = kuisService.findById(kuisId);
+
+        // cuma siswa yang boleh akses _dan_ harus di kelas yang sama
+        if (!"SISWA".equalsIgnoreCase(user.getRole())
+                || !kuis.getKelas().getId().equals(user.getKelas().getId())) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "Akses ditolak: hanya siswa di kelas yang sama yang dapat mengerjakan kuis ini"));
+        }
+
+        List<SoalDTO> soal = kuisService.getSoalDariKuis(kuisId).stream()
+                .map(s -> new SoalDTO(
+                        s.getId(), s.getPertanyaan(), s.getGambar(),
+                        s.getOpsiA(), s.getOpsiB(), s.getOpsiC(), s.getOpsiD()
+                ))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(soal);
+    }
+
+
 }

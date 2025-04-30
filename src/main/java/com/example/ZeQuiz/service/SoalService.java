@@ -5,7 +5,6 @@ import com.example.ZeQuiz.entity.Topik;
 import com.example.ZeQuiz.entity.User;
 import com.example.ZeQuiz.repository.SoalRepository;
 import com.example.ZeQuiz.repository.TopikRepository;
-import com.example.ZeQuiz.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,30 +19,31 @@ public class SoalService {
     @Autowired
     private TopikRepository topikRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    /**
+     * Menambahkan soal ke dalam topik sesuai kelas guru.
+     */
+    public Soal tambahSoal(User guru, Long topikId, Soal inputSoal) {
+        validateGuru(guru);
 
-    //Menambahkan soal ke dalam topik, sesuai kelas guru.
-    public Soal tambahSoal(Long userId, Long topikId, Soal inputSoal) {
-        User guru = getGuruById(userId);
-        Topik topik = getTopikById(topikId);
+        Topik topik = topikRepository.findById(topikId)
+                .orElseThrow(() -> new RuntimeException("Topik tidak ditemukan"));
 
-        // Validasi kelas topik harus sama dengan kelas guru
         if (!topik.getKelas().getId().equals(guru.getKelas().getId())) {
-            throw new RuntimeException("Topik bukan milik kelas guru ini");
+            throw new RuntimeException("Guru tidak memiliki akses ke topik ini");
         }
 
         inputSoal.setTopik(topik);
         return soalRepository.save(inputSoal);
     }
 
-    //Menghapus soal sesuai kelas guru.
+    /**
+     * Menghapus soal jika guru berasal dari kelas yang sesuai.
+     */
+    public void hapusSoal(Long soalId, User guru) {
+        validateGuru(guru);
 
-    public void hapusSoal(Long soalId, Long userId) {
         Soal soal = soalRepository.findById(soalId)
                 .orElseThrow(() -> new RuntimeException("Soal tidak ditemukan"));
-
-        User guru = getGuruById(userId);
 
         if (!soal.getTopik().getKelas().getId().equals(guru.getKelas().getId())) {
             throw new RuntimeException("Guru tidak memiliki akses untuk menghapus soal ini");
@@ -52,12 +52,14 @@ public class SoalService {
         soalRepository.delete(soal);
     }
 
+    /**
+     * Mengambil semua soal dari satu topik sesuai kelas guru.
+     */
+    public List<Soal> getSoalByTopik(Long topikId, User guru) {
+        validateGuru(guru);
 
-     // Mengambil semua soal dalam topik, sesuai kelas guru.
-
-    public List<Soal> getSoalByTopik(Long topikId, Long userId) {
-        User guru = getGuruById(userId);
-        Topik topik = getTopikById(topikId);
+        Topik topik = topikRepository.findById(topikId)
+                .orElseThrow(() -> new RuntimeException("Topik tidak ditemukan"));
 
         if (!topik.getKelas().getId().equals(guru.getKelas().getId())) {
             throw new RuntimeException("Guru tidak memiliki akses ke topik ini");
@@ -66,14 +68,12 @@ public class SoalService {
         return soalRepository.findByTopik(topik);
     }
 
-
-    private User getGuruById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Guru tidak ditemukan"));
-    }
-
-    private Topik getTopikById(Long topikId) {
-        return topikRepository.findById(topikId)
-                .orElseThrow(() -> new RuntimeException("Topik tidak ditemukan"));
+    /**
+     * Validasi apakah user benar-benar seorang guru.
+     */
+    private void validateGuru(User user) {
+        if (!"GURU".equalsIgnoreCase(user.getRole())) {
+            throw new RuntimeException("Hanya guru yang dapat mengakses fitur ini");
+        }
     }
 }
