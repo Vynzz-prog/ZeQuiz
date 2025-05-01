@@ -71,3 +71,39 @@
   "kelas": null
 }
 ```
+
+## Lihat daftar kuis
+
+### Endpoint : GET zequiz/kuis/kelas/{kelasId}
+### Contoh zequiz/kuis/kelas/1
+
+- catatan : guru deng siswa dari kelas lain boleh ambe / lia dpe daftar kalo dpe API betul,
+            cuma nanti di FE dpe API for bagian {kelasId}, sistem so tau ni user kelas berapa pas login,
+            otomatis dpe API so ta isi sandiri dpe kelasId
+
+### response body (Success) :
+```json
+[
+  {
+    "id": 1,
+    "timer": 60,
+    "jumlahSoal": 2,
+    "tanggal": "2025-04-24",
+    "namaTopik": "Perkalian"
+  },
+  {
+    "id": 2,
+    "timer": 120,
+    "jumlahSoal": 1,
+    "tanggal": "2025-04-29",
+    "namaTopik": "Perkalian"
+  }
+]
+```
+
+### response body (Faild) :
+```json
+{
+  "pesan" : "unauthorized"
+}
+```

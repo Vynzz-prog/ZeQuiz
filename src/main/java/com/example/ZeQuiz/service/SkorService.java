@@ -27,17 +27,37 @@ public class SkorService {
     private UserRepository userRepository;
 
     /**
-     * Hitung skor akhir siswa berdasarkan jawaban.
+     * Hitung skor akhir siswa berdasarkan jawaban yang valid.
+     * Siswa hanya boleh mengerjakan kuis dari kelasnya sekali saja.
      */
     public Skor hitungSkor(User user, Kuis kuis, List<JawabanSiswa> jawabanSiswaList) {
+        // ❌ Cegah siswa dari kelas lain
+        if (!user.getKelas().getId().equals(kuis.getKelas().getId())) {
+            throw new RuntimeException("Siswa tidak memiliki akses ke kuis ini karena berbeda kelas.");
+        }
+
+        // ❌ Cegah siswa mengerjakan dua kali
+        Optional<Skor> existing = skorRepository.findBySiswaAndKuis(user, kuis);
+        if (existing.isPresent()) {
+            throw new RuntimeException("Kuis ini sudah pernah dikerjakan.");
+        }
+
+        // ✅ Ambil soal yang valid untuk kuis ini
+        List<KuisSoal> kuisSoalList = kuisSoalRepository.findByKuis(kuis);
+        if (kuisSoalList.isEmpty()) {
+            throw new RuntimeException("Soal dalam kuis tidak ditemukan.");
+        }
+
+        Set<Long> validSoalIds = kuisSoalList.stream()
+                .map(ks -> ks.getSoal().getId())
+                .collect(Collectors.toSet());
+
+        double skorPerSoal = 100.0 / validSoalIds.size();
         double score = 0;
 
-        int jumlahSoal = kuisSoalRepository.countByKuis(kuis);
-        if (jumlahSoal == 0) throw new RuntimeException("Jumlah soal di kuis tidak ditemukan");
-
-        double skorPerSoal = 100.0 / jumlahSoal;
-
         for (JawabanSiswa jawaban : jawabanSiswaList) {
+            if (!validSoalIds.contains(jawaban.getSoalId())) continue;
+
             Soal soal = soalRepository.findById(jawaban.getSoalId()).orElse(null);
             if (soal != null && soal.getJawabanBenar().equalsIgnoreCase(jawaban.getJawabanDipilih())) {
                 score += skorPerSoal;
@@ -47,37 +67,26 @@ public class SkorService {
         Skor skor = new Skor();
         skor.setSiswa(user);
         skor.setKuis(kuis);
-        skor.setSkor((int) score);
-        skor.setWaktuSelesai(LocalDateTime.now());
+        skor.setSkor((int) Math.round(score));
 
         return skorRepository.save(skor);
     }
 
-    /**
-     * Ambil skor berdasarkan user dan kuis.
-     */
     public Skor getSkorByUserAndKuis(User user, Kuis kuis) {
         return skorRepository.findBySiswaAndKuis(user, kuis)
                 .orElseThrow(() -> new RuntimeException("Skor tidak ditemukan"));
     }
 
-    /**
-     * Ambil semua skor yang terkait dengan kuis.
-     */
     public List<Skor> getSkorByKuis(Kuis kuis) {
         return skorRepository.findByKuis(kuis);
     }
 
-    /**
-     * Mendapatkan status pengerjaan kuis oleh siswa dalam satu kelas dengan format DTO.
-     */
     public List<SiswaSkorDTO> getStatusPengerjaanKuis(Kuis kuis, List<User> siswaList) {
         List<Skor> skorList = skorRepository.findByKuis(kuis);
         Map<Long, Skor> skorMap = skorList.stream()
                 .collect(Collectors.toMap(s -> s.getSiswa().getId(), s -> s));
 
         List<SiswaSkorDTO> hasil = new ArrayList<>();
-
         for (User siswa : siswaList) {
             Skor skor = skorMap.get(siswa.getId());
             if (skor != null) {
@@ -86,7 +95,6 @@ public class SkorService {
                 hasil.add(new SiswaSkorDTO(siswa.getId(), siswa.getUsername(), null, "Belum mengerjakan"));
             }
         }
-
         return hasil;
     }
 }

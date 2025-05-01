@@ -10,5 +10,4 @@ public class SkorResponseDTO {
     private KuisSimpleDTO kuis;
     private Long siswaId;
     private Integer skor;
-    private String waktuSelesai;
 }

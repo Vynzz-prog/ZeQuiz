@@ -43,10 +43,15 @@ public class TopikController {
         return ResponseEntity.ok(topik);
     }
 
-    // ✅ Ambil semua topik untuk user yang sedang login
+    // ✅ Ambil semua topik untuk user yang sedang login (hanya guru)
     @GetMapping("/my")
-    public ResponseEntity<List<Topik>> getTopikByUser(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> getTopikByUser(@AuthenticationPrincipal UserDetails userDetails) {
         User user = userService.findByUsername(userDetails.getUsername());
+
+        if (!"GURU".equalsIgnoreCase(user.getRole())) {
+            return ResponseEntity.status(403).body(Map.of("error", "Hanya guru yang dapat mengakses topik"));
+        }
+
         List<Topik> topikList = topikService.getTopikByUser(user.getId());
         return ResponseEntity.ok(topikList);
     }
@@ -58,7 +63,6 @@ public class TopikController {
         try {
             User user = userService.findByUsername(userDetails.getUsername());
 
-            // ✅ Cek hanya guru yang bisa hapus topik
             if (!"GURU".equalsIgnoreCase(user.getRole())) {
                 return ResponseEntity.status(403).body(Map.of("error", "Hanya guru yang dapat menghapus topik"));
             }

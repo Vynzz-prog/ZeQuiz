@@ -36,7 +36,7 @@
 
 ## Endpoint : GET zequiz/topik/my
 
-- menampilkan daftar topik oleh guru berdasarkan kelas ( di siswa masih boleh lia daftar kuis)
+- menampilkan daftar topik oleh guru berdasarkan kelas 
  
 ### response body (Success) :
 ```json
@@ -140,37 +140,6 @@ topikId = value
 }
 ```
 
-### Lihat daftar kuis
-
-## Endpoint : GET zequiz/kuis/kelas/{kelasId}
-## Contoh zequiz/kuis/kelas/1
-
-### response body (Success) :
-```json
-[
-  {
-    "id": 1,
-    "timer": 60,
-    "jumlahSoal": 2,
-    "tanggal": "2025-04-24",
-    "namaTopik": "Perkalian"
-  },
-  {
-    "id": 2,
-    "timer": 120,
-    "jumlahSoal": 1,
-    "tanggal": "2025-04-29",
-    "namaTopik": "Perkalian"
-  }
-]
-```
-
-### response body (Faild) :
-```json
-{
-  "pesan" : "unauthorized"
-}
-```
 
 ## Buat Soal
 ### Endpoint : POST zequiz/soal/tambah
@@ -295,4 +264,39 @@ gambarFile: (optional)
   "pesan" : "unauthorized 401"
 }
 ```
+
+### Lihat Skor untuk guru
+
+## Endpoint : GET zequiz/skor/guru/kuis/{kuisId}
+
+- contoh : zequiz/skor/guru/kuis/4
+
+
+### response body (Success) :
+```json
+[
+  {
+    "siswaId": 5,
+    "username": "ucup",
+    "skor": null,
+    "status": "Belum mengerjakan"
+  },
+  {
+    "siswaId": 7,
+    "username": "Vincent",
+    "skor": 50,
+    "status": "Sudah mengerjakan"
+  }
+]
+```
+
+### response body (Faild) :
+```json
+{
+
+  "error": "Akses ditolak ke kuis ini" 
+
+}
+```
+- akses di tolak karena guru mo coba akses kuis dari kelas lain punya
 
