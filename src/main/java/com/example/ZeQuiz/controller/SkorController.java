@@ -38,7 +38,7 @@ public class SkorController {
         User user = userService.findByUsername(ud.getUsername());
 
         if (!"SISWA".equalsIgnoreCase(user.getRole())) {
-            return ResponseEntity.status(403).body(Map.of("error", "Hanya siswa yang dapat mengerjakan kuis."));
+            return ResponseEntity.status(403).body(Map.of("pesan", "Hanya siswa yang dapat mengerjakan kuis."));
         }
 
         Kuis kuis = kuisService.findById(kuisId);
@@ -61,7 +61,7 @@ public class SkorController {
             Skor skor = skorService.getSkorByUserAndKuis(user, kuis);
             return ResponseEntity.ok(mapToDto(skor));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("pesan", e.getMessage()));
         }
     }
 
@@ -78,13 +78,13 @@ public class SkorController {
             Kuis kuis = kuisService.findById(kuisId);
 
             if (!"GURU".equalsIgnoreCase(guru.getRole()) || !kuis.getKelas().getId().equals(guru.getKelas().getId())) {
-                return ResponseEntity.status(403).body(Map.of("error", "Akses ditolak ke kuis ini"));
+                return ResponseEntity.status(403).body(Map.of("pesan", "Akses ditolak ke kuis ini"));
             }
 
             List<User> siswaList = userService.getSiswaByKelas(guru.getKelas());
             return ResponseEntity.ok(skorService.getStatusPengerjaanKuis(kuis, siswaList));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("pesan", e.getMessage()));
         }
     }
 

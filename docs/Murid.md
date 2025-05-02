@@ -52,6 +52,22 @@
 - Mengirim jawaban saat kuis dan mendapat skor
 
 - kalo dia so pernah kirim ( so pernah bekeng ni kuis ), dia nda bisa jawab ulang
+
+
+### request body :
+```json
+[
+  {
+    "soalId": 10,
+    "jawabanDipilih": "A"
+  },
+  {
+    "soalId": 3,
+    "jawabanDipilih": "C"
+  }
+]
+```
+
 ### response body (Success) :
 ```json
 {

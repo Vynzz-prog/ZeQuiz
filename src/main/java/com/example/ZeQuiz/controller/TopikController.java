@@ -29,14 +29,13 @@ public class TopikController {
                                        @AuthenticationPrincipal UserDetails userDetails) {
         String namaTopik = body.get("namaTopik");
         if (namaTopik == null || namaTopik.isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Nama topik tidak boleh kosong"));
+            return ResponseEntity.badRequest().body(Map.of("pesan", "Nama topik tidak boleh kosong"));
         }
 
         User user = userService.findByUsername(userDetails.getUsername());
 
-        // ✅ Cek hanya guru yang bisa buat topik
         if (!"GURU".equalsIgnoreCase(user.getRole())) {
-            return ResponseEntity.status(403).body(Map.of("error", "Hanya guru yang dapat membuat topik"));
+            return ResponseEntity.status(403).body(Map.of("pesan", "Hanya guru yang dapat membuat topik"));
         }
 
         Topik topik = topikService.buatTopik(namaTopik, user.getId());
@@ -49,7 +48,7 @@ public class TopikController {
         User user = userService.findByUsername(userDetails.getUsername());
 
         if (!"GURU".equalsIgnoreCase(user.getRole())) {
-            return ResponseEntity.status(403).body(Map.of("error", "Hanya guru yang dapat mengakses topik"));
+            return ResponseEntity.status(403).body(Map.of("pesan", "Hanya guru yang dapat mengakses topik"));
         }
 
         List<Topik> topikList = topikService.getTopikByUser(user.getId());
@@ -64,13 +63,13 @@ public class TopikController {
             User user = userService.findByUsername(userDetails.getUsername());
 
             if (!"GURU".equalsIgnoreCase(user.getRole())) {
-                return ResponseEntity.status(403).body(Map.of("error", "Hanya guru yang dapat menghapus topik"));
+                return ResponseEntity.status(403).body(Map.of("pesan", "Hanya guru yang dapat menghapus topik"));
             }
 
             topikService.hapusTopik(topikId, user);
-            return ResponseEntity.ok(Map.of("message", "Topik berhasil dihapus"));
+            return ResponseEntity.ok(Map.of("pesan", "Topik berhasil dihapus"));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("pesan", e.getMessage()));
         }
     }
 }

@@ -46,35 +46,25 @@
 ### response body (Success) :
 ```json
 {
-  "pesan" : "Login Berhasil",
-  "token" : "jduydgaydhdwkdjiu",
-  "role": "SISWA",
-  "username": "Budi",
-  "kelas": 4
+  "pesan": "Login berhasil",
+  "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJndXJ1MiIsImlhdCI6MTc0NjIwMjExMywiZXhwIjoxNzQ2Mjg4NTEzfQ.1h48p6DI_M67YS6yCBph_ZVP_Km1LaficfwAlJK3Gfo",
+  "role": "GURU",
+  "username": "guru2",
+  "kelas": "Kelas 5"
 }
 ```
 
-### [ZeQuizApplication.java](../src/main/java/com/example/ZeQuiz/ZeQuizApplication.java)response body (Faild) :
+### response body (Faild) :
 ```json
 {
-  "message": "Username tidak ditemukan",
-  "token": null,
-  "role": null,
-  "username": null,
-  "kelas": null,
-
-
-  "message": "Kata sandi salah",
-  "token": null,
-  "role": null,
-  "username": null,
-  "kelas": null
+  "pesan": "Username tidak ditemukan // Kata sandi salah"
 }
 ```
 
 ## Lihat daftar kuis
 
 ### Endpoint : GET zequiz/kuis/kelas/{kelasId}
+
 ### Contoh zequiz/kuis/kelas/1
 
 - catatan : guru deng siswa dari kelas lain boleh ambe / lia dpe daftar kalo dpe API betul,

@@ -15,13 +15,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.stream.Collectors;
-
-
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import java.util.Comparator;
 
 @RestController
 @RequestMapping("/zequiz/kuis")
@@ -36,9 +34,7 @@ public class KuisController {
     @Autowired
     private KuisSoalRepository kuisSoalRepository;
 
-    /**
-     * Guru membuat kuis, response disederhanakan tanpa password atau objek guru.
-     */
+    // ✅ Guru membuat kuis, response disederhanakan tanpa password atau objek guru.
     @PostMapping("/buat")
     public ResponseEntity<?> buatKuis(@RequestParam Long topikId,
                                       @RequestBody Kuis kuisInput,
@@ -61,13 +57,11 @@ public class KuisController {
                     )
             ));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("pesan", e.getMessage()));
         }
     }
 
-    /**
-     * Ambil daftar kuis untuk suatu kelas, response via DTO.
-     */
+    // ✅ Ambil daftar kuis untuk suatu kelas, response via DTO.
     @GetMapping("/kelas/{kelasId}")
     public ResponseEntity<?> getKuisByKelas(@PathVariable Long kelasId) {
         try {
@@ -83,13 +77,11 @@ public class KuisController {
                     .toList();
             return ResponseEntity.ok(responseList);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("pesan", e.getMessage()));
         }
     }
 
-    /**
-     * Siswa ambil soal dalam kuis tanpa jawaban benar.
-     */
+    // ✅ Siswa ambil soal dalam kuis tanpa jawaban benar.
     @GetMapping("/{kuisId}/soal")
     public ResponseEntity<?> getSoalByKuis(
             @PathVariable Long kuisId,
@@ -98,12 +90,11 @@ public class KuisController {
         User user = userService.findByUsername(userDetails.getUsername());
         Kuis kuis = kuisService.findById(kuisId);
 
-        // cuma siswa yang boleh akses _dan_ harus di kelas yang sama
-        if (!"SISWA".equalsIgnoreCase(user.getRole())
-                || !kuis.getKelas().getId().equals(user.getKelas().getId())) {
+        if (!"SISWA".equalsIgnoreCase(user.getRole()) ||
+                !kuis.getKelas().getId().equals(user.getKelas().getId())) {
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", "Akses ditolak: hanya siswa di kelas yang sama yang dapat mengerjakan kuis ini"));
+                    .body(Map.of("pesan", "Akses ditolak: hanya siswa di kelas yang sama yang dapat mengerjakan kuis ini"));
         }
 
         List<SoalDTO> soal = kuisService.getSoalDariKuis(kuisId).stream()
@@ -115,6 +106,4 @@ public class KuisController {
 
         return ResponseEntity.ok(soal);
     }
-
-
 }

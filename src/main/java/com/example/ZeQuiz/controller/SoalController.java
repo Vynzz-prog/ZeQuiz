@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("zequiz/soal")
@@ -25,7 +26,7 @@ public class SoalController {
 
     // ✅ Tambah soal (dengan upload gambar opsional)
     @PostMapping(value = "/tambah", consumes = "multipart/form-data")
-    public ResponseEntity<Soal> tambahSoal(
+    public ResponseEntity<?> tambahSoal(
             @RequestParam Long topikId,
             @RequestParam(required = false) String pertanyaan,
             @RequestParam String opsiA,
@@ -36,40 +37,69 @@ public class SoalController {
             @RequestParam(required = false) MultipartFile gambarFile,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
-        User guru = userService.findByUsername(userDetails.getUsername());
+        try {
+            User guru = userService.findByUsername(userDetails.getUsername());
 
-        Soal soal = new Soal();
-        soal.setPertanyaan(pertanyaan);
-        soal.setOpsiA(opsiA);
-        soal.setOpsiB(opsiB);
-        soal.setOpsiC(opsiC);
-        soal.setOpsiD(opsiD);
-        soal.setJawabanBenar(jawabanBenar);
+            if (!"GURU".equalsIgnoreCase(guru.getRole())) {
+                return ResponseEntity.status(403).body(Map.of("pesan", "Hanya guru yang dapat menambah soal"));
+            }
 
-        if (gambarFile != null && !gambarFile.isEmpty()) {
-            soal.setGambar(gambarFile.getOriginalFilename());
-            // ❗ Kalau mau, bisa tambahkan simpan file gambar fisik di sini
+            Soal soal = new Soal();
+            soal.setPertanyaan(pertanyaan);
+            soal.setOpsiA(opsiA);
+            soal.setOpsiB(opsiB);
+            soal.setOpsiC(opsiC);
+            soal.setOpsiD(opsiD);
+            soal.setJawabanBenar(jawabanBenar);
+
+            if (gambarFile != null && !gambarFile.isEmpty()) {
+                soal.setGambar(gambarFile.getOriginalFilename());
+                // ❗ Tambahkan simpan file jika perlu
+            }
+
+            Soal created = soalService.tambahSoal(guru, topikId, soal);
+            return ResponseEntity.ok(created);
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("pesan", e.getMessage()));
         }
-
-        Soal created = soalService.tambahSoal(guru, topikId, soal);  // ✅ kirim User, bukan ID
-        return ResponseEntity.ok(created);
     }
 
     // ✅ Hapus soal
     @DeleteMapping("/hapus/{soalId}")
-    public ResponseEntity<String> hapusSoal(@PathVariable Long soalId,
-                                            @AuthenticationPrincipal UserDetails userDetails) {
-        User guru = userService.findByUsername(userDetails.getUsername());
-        soalService.hapusSoal(soalId, guru);  // ✅ kirim User, bukan ID
-        return ResponseEntity.ok("Soal berhasil dihapus");
+    public ResponseEntity<?> hapusSoal(@PathVariable Long soalId,
+                                       @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            User guru = userService.findByUsername(userDetails.getUsername());
+
+            if (!"GURU".equalsIgnoreCase(guru.getRole())) {
+                return ResponseEntity.status(403).body(Map.of("pesan", "Hanya guru yang dapat menghapus soal"));
+            }
+
+            soalService.hapusSoal(soalId, guru);
+            return ResponseEntity.ok(Map.of("pesan", "Soal berhasil dihapus"));
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("pesan", e.getMessage()));
+        }
     }
 
-    // ✅ Lihat semua soal dalam satu topik
+    // ✅ Lihat semua soal dalam satu topik (hanya guru)
     @GetMapping("/topik/{topikId}")
-    public ResponseEntity<List<Soal>> getSoalByTopik(@PathVariable Long topikId,
-                                                     @AuthenticationPrincipal UserDetails userDetails) {
-        User guru = userService.findByUsername(userDetails.getUsername());
-        List<Soal> soalList = soalService.getSoalByTopik(topikId, guru);  // ✅ kirim User, bukan ID
-        return ResponseEntity.ok(soalList);
+    public ResponseEntity<?> getSoalByTopik(@PathVariable Long topikId,
+                                            @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            User guru = userService.findByUsername(userDetails.getUsername());
+
+            if (!"GURU".equalsIgnoreCase(guru.getRole())) {
+                return ResponseEntity.status(403).body(Map.of("pesan", "Hanya guru yang dapat melihat soal"));
+            }
+
+            List<Soal> soalList = soalService.getSoalByTopik(topikId, guru);
+            return ResponseEntity.ok(soalList);
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("pesan", e.getMessage()));
+        }
     }
 }
