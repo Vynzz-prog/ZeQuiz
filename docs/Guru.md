@@ -85,7 +85,7 @@
 ### response body (Success) :
 ```json
 {
-  "message": "Topik berhasil dihapus"
+  "pesan": "Topik berhasil dihapus"
 }
 ```
 
@@ -294,7 +294,7 @@ gambarFile: (optional)
 ```json
 {
 
-  "error": "Akses ditolak ke kuis ini" 
+  "pesan": "Akses ditolak ke kuis ini" 
 
 }
 ```

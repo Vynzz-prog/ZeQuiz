@@ -36,7 +36,7 @@
 ### response body (Faild) :
 ```json
 {
-  "error": "Akses ditolak: hanya siswa di kelas yang sama yang dapat mengerjakan kuis ini"
+  "pesan": "Akses ditolak: hanya siswa di kelas yang sama yang dapat mengerjakan kuis ini"
 }
 ```
 
@@ -95,7 +95,7 @@
 ### response body (Faild) :
 ```json
 {
-  "error": "401 Unauthorized"
+  "pesan": "401 Unauthorized"
 }
 ```
 
@@ -132,6 +132,6 @@
 ### response body (Faild) :
 ```json
 {
-  "error": "401 Unauthorized // Kuis tidak ditemukan // Skor tidak ditemukan"
+  "pesan": "401 Unauthorized // Kuis tidak ditemukan // Skor tidak ditemukan"
 }
 ```
