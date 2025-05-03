@@ -71,24 +71,24 @@
 ### response body (Success) :
 ```json
 {
-  "id": 14,
+  "id": 19,
   "kuis": {
-    "id": 4,
+    "id": 6,
     "timer": 120,
-    "jumlahSoal": 2,
-    "tanggal": "2025-04-29",
+    "jumlahSoal": 1,
+    "tanggal": "2025-05-03",
+    "nama": "Kuis Matematika Perkalian",
     "topik": {
-      "id": 1,
-      "nama": "Perkalian"
+      "id": 5,
+      "nama": "Aljabar"
     },
     "kelas": {
-      "id": 1,
-      "nama": "Kelas 4"
+      "id": 2,
+      "nama": "Kelas 5"
     }
   },
-  "siswaId": 7,
-  "skor": 50,
-  "waktuSelesai": "2025-05-01T18:04:51.192204"
+  "siswaId": 9,
+  "skor": 0
 }
 ```
 
