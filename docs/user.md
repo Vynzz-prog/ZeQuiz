@@ -76,17 +76,19 @@
 [
   {
     "id": 1,
+    "namaKuis": "Kuis 1",
     "timer": 60,
     "jumlahSoal": 2,
     "tanggal": "2025-04-24",
     "namaTopik": "Perkalian"
   },
   {
-    "id": 2,
+    "id": 6,
+    "namaKuis": "Kuis Matematika Perkalian",
     "timer": 120,
     "jumlahSoal": 1,
-    "tanggal": "2025-04-29",
-    "namaTopik": "Perkalian"
+    "tanggal": "2025-05-03",
+    "namaTopik": "Aljabar"
   }
 ]
 ```

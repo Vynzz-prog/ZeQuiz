@@ -89,13 +89,14 @@ public class SkorController {
     }
 
     /**
-     * 🔁 Konversi entity Skor ke SkorResponseDTO.
+     * 🔁 Konversi entity Skor ke SkorResponseDTO (termasuk nama kuis).
      */
     private SkorResponseDTO mapToDto(Skor s) {
         return SkorResponseDTO.builder()
                 .id(s.getId())
                 .kuis(KuisSimpleDTO.builder()
                         .id(s.getKuis().getId())
+                        .nama(s.getKuis().getNama()) // 🆕 Tambahan nama kuis
                         .timer(s.getKuis().getTimer())
                         .jumlahSoal(s.getKuis().getJumlahSoal())
                         .tanggal(s.getKuis().getTanggal().toString())

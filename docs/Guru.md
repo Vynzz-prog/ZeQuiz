@@ -108,9 +108,10 @@ topikId = value
 ### request body :
 ```json
 {
-
+  
+  "nama": "Kuis Matematika Perkalian",
   "timer": 120,
-  "jumlahSoal": 2
+  "jumlahSoal": 1
 
 }
 ```
@@ -118,18 +119,19 @@ topikId = value
 ### response body (Success) :
 ```json
 {
+  "tanggal": "2025-05-03",
+  "id": 6,
+  "nama": "Kuis Matematika Perkalian",
+  "jumlahSoal": 1,
   "topik": {
-    "nama": "Perkalian",
-    "id": 1
+    "id": 5,
+    "nama": "Aljabar"
   },
   "kelas": {
-    "nama": "Kelas 4",
-    "id": 1
+    "id": 2,
+    "nama": "Kelas 5"
   },
-  "jumlahSoal": 2,
-  "timer": 120,
-  "tanggal": "2025-04-29",
-  "id": 4
+  "timer": 120
 }
 ```
 

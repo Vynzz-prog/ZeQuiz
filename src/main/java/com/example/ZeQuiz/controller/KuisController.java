@@ -4,8 +4,6 @@ import com.example.ZeQuiz.dto.KuisResponseDTO;
 import com.example.ZeQuiz.dto.SoalDTO;
 import com.example.ZeQuiz.entity.Kuis;
 import com.example.ZeQuiz.entity.User;
-import com.example.ZeQuiz.entity.KuisSoal;
-import com.example.ZeQuiz.entity.Soal;
 import com.example.ZeQuiz.service.KuisService;
 import com.example.ZeQuiz.service.UserService;
 import com.example.ZeQuiz.repository.KuisSoalRepository;
@@ -16,10 +14,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.stream.Collectors;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/zequiz/kuis")
@@ -34,7 +32,7 @@ public class KuisController {
     @Autowired
     private KuisSoalRepository kuisSoalRepository;
 
-    // ✅ Guru membuat kuis, response disederhanakan tanpa password atau objek guru.
+    // ✅ Guru membuat kuis
     @PostMapping("/buat")
     public ResponseEntity<?> buatKuis(@RequestParam Long topikId,
                                       @RequestBody Kuis kuisInput,
@@ -44,6 +42,7 @@ public class KuisController {
             Kuis kuis = kuisService.buatKuis(guru.getId(), topikId, kuisInput);
             return ResponseEntity.ok(Map.of(
                     "id", kuis.getId(),
+                    "nama", kuis.getNama(),
                     "timer", kuis.getTimer(),
                     "jumlahSoal", kuis.getJumlahSoal(),
                     "tanggal", kuis.getTanggal().format(DateTimeFormatter.ISO_DATE),
@@ -61,7 +60,7 @@ public class KuisController {
         }
     }
 
-    // ✅ Ambil daftar kuis untuk suatu kelas, response via DTO.
+    // ✅ Ambil daftar kuis untuk suatu kelas
     @GetMapping("/kelas/{kelasId}")
     public ResponseEntity<?> getKuisByKelas(@PathVariable Long kelasId) {
         try {
@@ -69,6 +68,7 @@ public class KuisController {
             List<KuisResponseDTO> responseList = kuisList.stream()
                     .map(k -> KuisResponseDTO.builder()
                             .id(k.getId())
+                            .namaKuis(k.getNama())
                             .timer(k.getTimer())
                             .jumlahSoal(k.getJumlahSoal())
                             .tanggal(k.getTanggal().toString())
@@ -81,26 +81,29 @@ public class KuisController {
         }
     }
 
-    // ✅ Siswa ambil soal dalam kuis tanpa jawaban benar.
+    // ✅ Siswa ambil soal dalam kuis tanpa jawaban benar
     @GetMapping("/{kuisId}/soal")
-    public ResponseEntity<?> getSoalByKuis(
-            @PathVariable Long kuisId,
-            @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> getSoalByKuis(@PathVariable Long kuisId,
+                                           @AuthenticationPrincipal UserDetails userDetails) {
 
         User user = userService.findByUsername(userDetails.getUsername());
         Kuis kuis = kuisService.findById(kuisId);
 
         if (!"SISWA".equalsIgnoreCase(user.getRole()) ||
                 !kuis.getKelas().getId().equals(user.getKelas().getId())) {
-            return ResponseEntity
-                    .status(HttpStatus.FORBIDDEN)
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("pesan", "Akses ditolak: hanya siswa di kelas yang sama yang dapat mengerjakan kuis ini"));
         }
 
         List<SoalDTO> soal = kuisService.getSoalDariKuis(kuisId).stream()
                 .map(s -> new SoalDTO(
-                        s.getId(), s.getPertanyaan(), s.getGambar(),
-                        s.getOpsiA(), s.getOpsiB(), s.getOpsiC(), s.getOpsiD()
+                        s.getId(),
+                        s.getPertanyaan(),
+                        s.getGambar(),
+                        s.getOpsiA(),
+                        s.getOpsiB(),
+                        s.getOpsiC(),
+                        s.getOpsiD()
                 ))
                 .collect(Collectors.toList());
 

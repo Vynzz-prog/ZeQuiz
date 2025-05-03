@@ -109,23 +109,24 @@
 ### response body (Success) :
 ```json
 {
-  "id": 18,
+  "id": 17,
   "kuis": {
-    "id": 5,
+    "id": 4,
     "timer": 120,
-    "jumlahSoal": 1,
-    "tanggal": "2025-05-01",
+    "jumlahSoal": 2,
+    "tanggal": "2025-04-29",
+    "nama": "Kuis Harian",
     "topik": {
-      "id": 5,
-      "nama": "Aljabar"
+      "id": 1,
+      "nama": "Perkalian"
     },
     "kelas": {
-      "id": 2,
-      "nama": "Kelas 5"
+      "id": 1,
+      "nama": "Kelas 4"
     }
   },
-  "siswaId": 9,
-  "skor": 0
+  "siswaId": 7,
+  "skor": 50
 }
 ```
 

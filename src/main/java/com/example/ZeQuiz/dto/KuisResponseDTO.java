@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class KuisResponseDTO {
     private Long id;
+    private String namaKuis;      // 🆕 Tambahan: nama kuis
     private Integer timer;
     private Integer jumlahSoal;
     private String tanggal;

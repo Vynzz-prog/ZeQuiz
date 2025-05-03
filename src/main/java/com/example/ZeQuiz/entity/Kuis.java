@@ -20,6 +20,10 @@ public class Kuis {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String nama;
+
+
     private int timer;
 
     @Column(name = "jumlah_soal")
