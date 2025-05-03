@@ -14,7 +14,7 @@ public class KuisSimpleDTO {
     private Integer timer;
     private Integer jumlahSoal;
     private String tanggal;
-    private String nama; // 🆕 Tambahan: nama kuis
+    private String nama;
     private TopikSimpleDTO topik;
     private KelasSimpleDTO kelas;
 }
