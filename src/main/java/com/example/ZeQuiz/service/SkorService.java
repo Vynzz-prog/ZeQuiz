@@ -6,8 +6,9 @@ import com.example.ZeQuiz.model.JawabanSiswa;
 import com.example.ZeQuiz.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
+
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,23 +27,18 @@ public class SkorService {
     @Autowired
     private UserRepository userRepository;
 
-    /**
-     * Hitung skor akhir siswa berdasarkan jawaban yang valid.
-     * Siswa hanya boleh mengerjakan kuis dari kelasnya sekali saja.
-     */
+
     public Skor hitungSkor(User user, Kuis kuis, List<JawabanSiswa> jawabanSiswaList) {
-        // ❌ Cegah siswa dari kelas lain
+
         if (!user.getKelas().getId().equals(kuis.getKelas().getId())) {
             throw new RuntimeException("Siswa tidak memiliki akses ke kuis ini karena berbeda kelas.");
         }
 
-        // ❌ Cegah siswa mengerjakan dua kali
         Optional<Skor> existing = skorRepository.findBySiswaAndKuis(user, kuis);
         if (existing.isPresent()) {
             throw new RuntimeException("Kuis ini sudah pernah dikerjakan.");
         }
 
-        // ✅ Ambil soal yang valid untuk kuis ini
         List<KuisSoal> kuisSoalList = kuisSoalRepository.findByKuis(kuis);
         if (kuisSoalList.isEmpty()) {
             throw new RuntimeException("Soal dalam kuis tidak ditemukan.");
@@ -59,8 +55,13 @@ public class SkorService {
             if (!validSoalIds.contains(jawaban.getSoalId())) continue;
 
             Soal soal = soalRepository.findById(jawaban.getSoalId()).orElse(null);
-            if (soal != null && soal.getJawabanBenar().equalsIgnoreCase(jawaban.getJawabanDipilih())) {
-                score += skorPerSoal;
+            if (soal != null) {
+                String jawabanBenar = soal.getJawabanBenar() != null ? soal.getJawabanBenar().trim().toLowerCase() : "";
+                String jawabanSiswa = jawaban.getJawabanDipilih() != null ? jawaban.getJawabanDipilih().trim().toLowerCase() : "";
+
+                if (jawabanBenar.equals(jawabanSiswa)) {
+                    score += skorPerSoal;
+                }
             }
         }
 
@@ -68,6 +69,7 @@ public class SkorService {
         skor.setSiswa(user);
         skor.setKuis(kuis);
         skor.setSkor((int) Math.round(score));
+        skor.setWaktuSelesai(LocalDateTime.now());
 
         return skorRepository.save(skor);
     }

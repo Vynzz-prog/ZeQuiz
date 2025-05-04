@@ -19,9 +19,7 @@ public class SoalService {
     @Autowired
     private TopikRepository topikRepository;
 
-    /**
-     * Menambahkan soal ke dalam topik sesuai kelas guru.
-     */
+
     public Soal tambahSoal(User guru, Long topikId, Soal inputSoal) {
         validateGuru(guru);
 
@@ -36,9 +34,7 @@ public class SoalService {
         return soalRepository.save(inputSoal);
     }
 
-    /**
-     * Menghapus soal jika guru berasal dari kelas yang sesuai.
-     */
+
     public void hapusSoal(Long soalId, User guru) {
         validateGuru(guru);
 
@@ -52,9 +48,7 @@ public class SoalService {
         soalRepository.delete(soal);
     }
 
-    /**
-     * Mengambil semua soal dari satu topik sesuai kelas guru.
-     */
+
     public List<Soal> getSoalByTopik(Long topikId, User guru) {
         validateGuru(guru);
 
@@ -68,9 +62,7 @@ public class SoalService {
         return soalRepository.findByTopik(topik);
     }
 
-    /**
-     * Validasi apakah user benar-benar seorang guru.
-     */
+
     private void validateGuru(User user) {
         if (!"GURU".equalsIgnoreCase(user.getRole())) {
             throw new RuntimeException("Hanya guru yang dapat mengakses fitur ini");

@@ -8,6 +8,6 @@ import lombok.Data;
 public class SiswaSkorDTO {
     private Long siswaId;
     private String username;
-    private Integer skor;           // null jika belum mengerjakan
-    private String status;          // "Sudah Mengerjakan" atau "Belum Mengerjakan"
+    private Integer skor;
+    private String status;
 }

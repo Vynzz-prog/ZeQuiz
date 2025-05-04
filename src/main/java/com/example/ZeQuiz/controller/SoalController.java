@@ -24,7 +24,7 @@ public class SoalController {
     @Autowired
     private UserService userService;
 
-    // ✅ Tambah soal (dengan upload gambar opsional)
+
     @PostMapping(value = "/tambah", consumes = "multipart/form-data")
     public ResponseEntity<?> tambahSoal(
             @RequestParam Long topikId,
@@ -54,7 +54,7 @@ public class SoalController {
 
             if (gambarFile != null && !gambarFile.isEmpty()) {
                 soal.setGambar(gambarFile.getOriginalFilename());
-                // ❗ Tambahkan simpan file jika perlu
+
             }
 
             Soal created = soalService.tambahSoal(guru, topikId, soal);
@@ -65,7 +65,7 @@ public class SoalController {
         }
     }
 
-    // ✅ Hapus soal
+
     @DeleteMapping("/hapus/{soalId}")
     public ResponseEntity<?> hapusSoal(@PathVariable Long soalId,
                                        @AuthenticationPrincipal UserDetails userDetails) {
@@ -84,7 +84,7 @@ public class SoalController {
         }
     }
 
-    // ✅ Lihat semua soal dalam satu topik (hanya guru)
+
     @GetMapping("/topik/{topikId}")
     public ResponseEntity<?> getSoalByTopik(@PathVariable Long topikId,
                                             @AuthenticationPrincipal UserDetails userDetails) {

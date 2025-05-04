@@ -45,7 +45,7 @@ public class TopikService {
         Topik topik = topikRepository.findById(topikId)
                 .orElseThrow(() -> new RuntimeException("Topik tidak ditemukan"));
 
-        // Validasi guru hanya bisa hapus topik milik kelasnya
+
         if (!topik.getKelas().getId().equals(guru.getKelas().getId())) {
             throw new RuntimeException("Anda tidak memiliki izin untuk menghapus topik ini");
         }

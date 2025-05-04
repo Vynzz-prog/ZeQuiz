@@ -97,11 +97,13 @@ public class AuthController {
         String token = jwtUtil.generateToken(user.getUsername());
 
         LoginResponseBody loginResponseBody = LoginResponseBody.builder()
+                .id(user.getId())
                 .pesan("Login berhasil")
                 .token(token)
                 .role(user.getRole())
                 .username(user.getUsername())
                 .kelas(user.getKelas().getNama())
+                .kelasId(user.getKelas().getId())
                 .build();
 
         return ResponseEntity.ok(loginResponseBody);

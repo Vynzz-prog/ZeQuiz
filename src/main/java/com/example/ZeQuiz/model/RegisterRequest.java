@@ -13,8 +13,8 @@ public class RegisterRequest {
     private String username;
     private Integer kelas;
     private String kata_sandi;
-    private String konfirmasi_kata_sandi; // Tambahan untuk konfirmasi password
-    private String role; //  GURU atau SISWA
+    private String konfirmasi_kata_sandi;
+    private String role;
 
     public String getUsername() {
         return username;

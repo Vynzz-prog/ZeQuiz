@@ -25,10 +25,7 @@ public class SkorController {
     @Autowired private UserService userService;
     @Autowired private KuisService kuisService;
 
-    /**
-     * ✅ Endpoint untuk siswa menghitung dan menyimpan skor kuis.
-     * ❌ Guru tidak bisa mengakses endpoint ini.
-     */
+
     @PostMapping("/hitung")
     public ResponseEntity<?> hitungSkor(
             @RequestBody List<JawabanSiswa> jawabanSiswaList,
@@ -46,9 +43,7 @@ public class SkorController {
         return ResponseEntity.ok(mapToDto(s));
     }
 
-    /**
-     * ✅ Endpoint untuk siswa melihat skor mereka sendiri.
-     */
+
     @GetMapping("/kuis/{kuisId}")
     public ResponseEntity<?> getSkor(
             @PathVariable Long kuisId,
@@ -65,9 +60,7 @@ public class SkorController {
         }
     }
 
-    /**
-     * ✅ Endpoint untuk guru melihat semua skor siswa dalam satu kuis.
-     */
+
     @GetMapping("/guru/kuis/{kuisId}")
     public ResponseEntity<?> getSkorSiswaByKuis(
             @PathVariable Long kuisId,
@@ -88,15 +81,15 @@ public class SkorController {
         }
     }
 
-    /**
-     * 🔁 Konversi entity Skor ke SkorResponseDTO (termasuk nama kuis).
-     */
+
+    //Konversi entity Skor ke SkorResponseDTO.
+
     private SkorResponseDTO mapToDto(Skor s) {
         return SkorResponseDTO.builder()
                 .id(s.getId())
                 .kuis(KuisSimpleDTO.builder()
                         .id(s.getKuis().getId())
-                        .nama(s.getKuis().getNama()) // 🆕 Tambahan nama kuis
+                        .nama(s.getKuis().getNama())
                         .timer(s.getKuis().getTimer())
                         .jumlahSoal(s.getKuis().getJumlahSoal())
                         .tanggal(s.getKuis().getTanggal().toString())

@@ -10,9 +10,9 @@ import java.util.Optional;
 
 public interface SkorRepository extends JpaRepository<Skor, Long> {
 
-    List<Skor> findBySiswa(User siswa); // ← ini yang benar sesuai field di entity
+    List<Skor> findBySiswa(User siswa);
 
     List<Skor> findByKuis(Kuis kuis);
 
-    Optional<Skor> findBySiswaAndKuis(User siswa, Kuis kuis); // ← bukan 'user'
+    Optional<Skor> findBySiswaAndKuis(User siswa, Kuis kuis);
 }

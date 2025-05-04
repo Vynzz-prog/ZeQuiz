@@ -23,26 +23,34 @@ public class TopikController {
     @Autowired
     private UserService userService;
 
-    // ✅ Buat topik (kelas diambil otomatis dari akun guru yang sedang login)
+
     @PostMapping("/buat")
     public ResponseEntity<?> buatTopik(@RequestBody Map<String, String> body,
                                        @AuthenticationPrincipal UserDetails userDetails) {
         String namaTopik = body.get("namaTopik");
+
+
         if (namaTopik == null || namaTopik.isBlank()) {
+            System.out.println("GAGAL: namaTopik kosong!");
             return ResponseEntity.badRequest().body(Map.of("pesan", "Nama topik tidak boleh kosong"));
         }
 
         User user = userService.findByUsername(userDetails.getUsername());
+        System.out.println("Role user: " + user.getRole());
 
         if (!"GURU".equalsIgnoreCase(user.getRole())) {
+            System.out.println("GAGAL: bukan GURU");
             return ResponseEntity.status(403).body(Map.of("pesan", "Hanya guru yang dapat membuat topik"));
         }
 
         Topik topik = topikService.buatTopik(namaTopik, user.getId());
+        System.out.println("BERHASIL: Topik disimpan dengan nama: " + topik.getNama());
+
         return ResponseEntity.ok(topik);
     }
 
-    // ✅ Ambil semua topik untuk user yang sedang login (hanya guru)
+
+
     @GetMapping("/my")
     public ResponseEntity<?> getTopikByUser(@AuthenticationPrincipal UserDetails userDetails) {
         User user = userService.findByUsername(userDetails.getUsername());
@@ -55,7 +63,7 @@ public class TopikController {
         return ResponseEntity.ok(topikList);
     }
 
-    // ✅ Hapus topik (hanya bisa dilakukan oleh guru)
+
     @DeleteMapping("/hapus/{topikId}")
     public ResponseEntity<?> hapusTopik(@PathVariable Long topikId,
                                         @AuthenticationPrincipal UserDetails userDetails) {

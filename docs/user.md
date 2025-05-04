@@ -46,11 +46,12 @@
 ### response body (Success) :
 ```json
 {
+  "id": 1,
   "pesan": "Login berhasil",
-  "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJndXJ1MiIsImlhdCI6MTc0NjIwMjExMywiZXhwIjoxNzQ2Mjg4NTEzfQ.1h48p6DI_M67YS6yCBph_ZVP_Km1LaficfwAlJK3Gfo",
+  "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJndXJ1MSIsImlhdCI6MTc0NjM2MTU4NSwiZXhwIjoxNzQ2NDQ3OTg1fQ.Zp9ELoIrCHhQZ6O-RKhZSvqffX7Tf9gcx8dFSGyh3KM",
   "role": "GURU",
-  "username": "guru2",
-  "kelas": "Kelas 5"
+  "username": "guru1",
+  "kelas": "Kelas 4"
 }
 ```
 

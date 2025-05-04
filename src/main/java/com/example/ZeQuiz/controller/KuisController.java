@@ -32,7 +32,7 @@ public class KuisController {
     @Autowired
     private KuisSoalRepository kuisSoalRepository;
 
-    // ✅ Guru membuat kuis
+
     @PostMapping("/buat")
     public ResponseEntity<?> buatKuis(@RequestParam Long topikId,
                                       @RequestBody Kuis kuisInput,
@@ -60,7 +60,7 @@ public class KuisController {
         }
     }
 
-    // ✅ Ambil daftar kuis untuk suatu kelas
+
     @GetMapping("/kelas/{kelasId}")
     public ResponseEntity<?> getKuisByKelas(@PathVariable Long kelasId) {
         try {
@@ -81,7 +81,7 @@ public class KuisController {
         }
     }
 
-    // ✅ Siswa ambil soal dalam kuis tanpa jawaban benar
+
     @GetMapping("/{kuisId}/soal")
     public ResponseEntity<?> getSoalByKuis(@PathVariable Long kuisId,
                                            @AuthenticationPrincipal UserDetails userDetails) {

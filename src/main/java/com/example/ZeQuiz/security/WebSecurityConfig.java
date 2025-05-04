@@ -25,7 +25,7 @@ public class WebSecurityConfig {
     @Autowired
     private AuthEntryPoint unauthorizedHandler;
 
-    // 🔧 Inject JwtUtil dan CustomUserDetailService ke filter lewat constructor
+
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
         return new AuthTokenFilter(jwtUtil, userDetailsService);

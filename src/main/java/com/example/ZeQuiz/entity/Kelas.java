@@ -2,7 +2,6 @@ package com.example.ZeQuiz.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 @Entity
 @Setter
 @Getter
@@ -17,5 +16,5 @@ public class Kelas {
     private Long id;
 
     @Column(nullable = false)
-    private String nama; // contoh: "Kelas 4"
+    private String nama;
 }

@@ -31,9 +31,7 @@ public class KuisService {
     @Autowired
     private KelasRepository kelasRepository;
 
-    /**
-     * Membuat kuis baru oleh guru berdasarkan topik tertentu.
-     */
+
     public Kuis buatKuis(Long userId, Long topikId, Kuis kuisInput) {
         // Cari guru
         User guru = userRepository.findById(userId)
@@ -51,7 +49,7 @@ public class KuisService {
             throw new RuntimeException("Topik bukan milik kelas guru");
         }
 
-        // Ambil soal secara acak dari topik
+        // Ambil soal dari topik
         List<Soal> soalList = soalRepository.findRandomSoalByTopikId(
                 topikId, PageRequest.of(0, kuisInput.getJumlahSoal()));
 
@@ -63,7 +61,7 @@ public class KuisService {
         kuisInput.setGuru(guru);
         kuisInput.setKelas(guru.getKelas());
         kuisInput.setTopik(topik);
-        kuisInput.setTanggal(LocalDate.now()); // 🔥 Set tanggal otomatis
+        kuisInput.setTanggal(LocalDate.now());
 
         // Simpan kuis
         Kuis savedKuis = kuisRepository.save(kuisInput);
@@ -77,23 +75,23 @@ public class KuisService {
             kuisSoalRepository.save(kuisSoal);
         }
 
-        System.out.println("✅ Guru " + guru.getUsername() + " membuat kuis baru di topik: " + topik.getNama());
+        System.out.println("Guru " + guru.getUsername() + " membuat kuis baru di topik: " + topik.getNama());
 
         return savedKuis;
     }
 
-    /**
-     * Mengambil semua kuis berdasarkan kelas.
-     */
+
+     //lia daftar kuis berdasarkan kelas.
+
     public List<Kuis> getKuisByKelas(Long kelasId) {
         Kelas kelas = kelasRepository.findById(kelasId)
                 .orElseThrow(() -> new RuntimeException("Kelas tidak ditemukan"));
         return kuisRepository.findByKelas(kelas);
     }
 
-    /**
-     * Cari kuis berdasarkan ID.
-     */
+
+    //Cari kuis berdasarkan ID.
+
     public Kuis findById(Long id) {
         return kuisRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Kuis tidak ditemukan"));

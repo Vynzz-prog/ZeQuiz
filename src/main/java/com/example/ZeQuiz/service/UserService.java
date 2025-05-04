@@ -15,25 +15,19 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    /**
-     * Mencari user berdasarkan username.
-     */
+
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException(
                         "User tidak ditemukan dengan username: " + username));
     }
 
-    /**
-     * Mencari user berdasarkan ID.
-     */
+
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
     }
 
-    /**
-     * Mengambil semua siswa berdasarkan kelas.
-     */
+
     public List<User> getSiswaByKelas(Kelas kelas) {
         return userRepository.findByRoleAndKelas("SISWA", kelas);
     }

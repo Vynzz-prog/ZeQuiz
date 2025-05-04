@@ -16,7 +16,7 @@ public class DataInitializer {
     public CommandLineRunner init(UserRepository userRepository, KelasRepository kelasRepository, PasswordEncoder passwordEncoder) {
         return args -> {
 
-            // Inisialisasi kelas 4, 5, 6 jika belum ada
+
             Kelas kelas4 = kelasRepository.findByNama("Kelas 4").orElseGet(() ->
                     kelasRepository.save(Kelas.builder().nama("Kelas 4").build()));
 
@@ -26,19 +26,19 @@ public class DataInitializer {
             Kelas kelas6 = kelasRepository.findByNama("Kelas 6").orElseGet(() ->
                     kelasRepository.save(Kelas.builder().nama("Kelas 6").build()));
 
-            // Akun guru 1
+
             if (!userRepository.existsByUsername("guru1")) {
                 User guru1 = User.builder()
                         .username("guru1")
                         .kata_sandi(passwordEncoder.encode("password1"))
-                        .kelas(kelas4) // pakai object kelas
+                        .kelas(kelas4)
                         .role("GURU")
                         .build();
                 userRepository.save(guru1);
-                System.out.println("✅ Akun guru1 berhasil dibuat");
+                System.out.println("Akun guru1 berhasil dibuat");
             }
 
-            // Akun guru 2
+
             if (!userRepository.existsByUsername("guru2")) {
                 User guru2 = User.builder()
                         .username("guru2")
@@ -47,10 +47,10 @@ public class DataInitializer {
                         .role("GURU")
                         .build();
                 userRepository.save(guru2);
-                System.out.println("✅ Akun guru2 berhasil dibuat");
+                System.out.println("Akun guru2 berhasil dibuat");
             }
 
-            // Guru 3
+
             if (!userRepository.existsByUsername("guru3")) {
                 User guru3 = User.builder()
                         .username("guru3")
@@ -59,7 +59,7 @@ public class DataInitializer {
                         .role("GURU")
                         .build();
                 userRepository.save(guru3);
-                System.out.println("✅ Akun guru3 berhasil dibuat");
+                System.out.println("Akun guru3 berhasil dibuat");
             }
         };
     }

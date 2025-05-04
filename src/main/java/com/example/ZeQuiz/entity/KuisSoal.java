@@ -24,5 +24,5 @@ public class KuisSoal {
     @JoinColumn(name = "soal_id", nullable = false)
     private Soal soal;
 
-    private Integer urutan;
+    private Integer urutan; // nanti lia mo pake ato nda
 }

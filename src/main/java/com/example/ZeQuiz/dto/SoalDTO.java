@@ -9,11 +9,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SoalDTO {
     private Long id;
-    private String pertanyaan;   // null jika soal bergambar
-    private String gambar;       // nama file, null jika tidak ada
+    private String pertanyaan;
+    private String gambar;
     private String opsiA;
     private String opsiB;
     private String opsiC;
     private String opsiD;
-    // jangan sertakan jawabanBenar
+
 }

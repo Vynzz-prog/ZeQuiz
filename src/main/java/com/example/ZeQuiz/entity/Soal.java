@@ -21,10 +21,10 @@ public class Soal {
     private Topik topik;
 
     @Column(name = "pertanyaan", columnDefinition = "TEXT")
-    private String pertanyaan; // Boleh kosong jika soal berupa gambar
+    private String pertanyaan;
 
     @Column(name = "gambar")
-    private String gambar; // Nama/path file gambar (opsional)
+    private String gambar;
 
     @Column(name = "opsi_a", nullable = false)
     private String opsiA;
@@ -39,5 +39,5 @@ public class Soal {
     private String opsiD;
 
     @Column(name = "jawaban_benar", nullable = false)
-    private String jawabanBenar; // Harus "A", "B", "C", atau "D"
+    private String jawabanBenar;
 }

@@ -10,9 +10,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoginResponseBody {
+    private Long id;
     private String pesan;
     private String token;
     private String role;
     private String username;
-    private String kelas; // ganti dari Integer → String karena akan mengembalikan nama kelas, seperti "Kelas 4"
+    private String kelas;
+    private Long kelasId;
+
 }

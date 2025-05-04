@@ -9,18 +9,12 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    /**
-     * Mencari user berdasarkan username.
-     */
+
     Optional<User> findByUsername(String username);
 
-    /**
-     * Mengecek apakah username sudah digunakan.
-     */
+
     boolean existsByUsername(String username);
 
-    /**
-     * Mengambil semua user dengan role tertentu dan kelas tertentu (khusus siswa).
-     */
+
     List<User> findByRoleAndKelas(String role, Kelas kelas);
 }

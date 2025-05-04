@@ -19,7 +19,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtils;
     private final CustomUserDetailService userDetailsService;
 
-    // Daftar endpoint publik (tidak perlu token)
+    // Daftar endpoint publik
     private final List<String> publicEndpoints = List.of(
             "/zequiz/auth/register",
             "/zequiz/auth/login"
@@ -37,13 +37,13 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         String authHeader = request.getHeader("Authorization");
 
-        System.out.println("🔍 FILTER ACTIVE");
-        System.out.println("🔍 Request URI: " + path);
-        System.out.println("🔍 Authorization Header: " + authHeader);
+        System.out.println("FILTER ACTIVE");
+        System.out.println("Request URI: " + path);
+        System.out.println("Authorization Header: " + authHeader);
 
         // Cek jika termasuk endpoint publik
         if (path != null && publicEndpoints.stream().anyMatch(path::startsWith)) {
-            System.out.println("🟢 Public endpoint — skipping filter.");
+            System.out.println("Public endpoint — skipping filter.");
             filterChain.doFilter(request, response);
             return;
         }
@@ -53,7 +53,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
                 String username = jwtUtils.getUsernameFromToken(jwt);
-                System.out.println("✅ Valid token. Username: " + username);
+                System.out.println("Valid token. Username: " + username);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken authentication =
@@ -65,11 +65,11 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } else {
-                System.out.println("⚠️ JWT kosong atau tidak valid");
+                System.out.println("JWT kosong atau tidak valid");
             }
 
         } catch (Exception e) {
-            System.out.println("❌ Error saat autentikasi JWT: " + e.getMessage());
+            System.out.println("Error saat autentikasi JWT: " + e.getMessage());
         }
 
         filterChain.doFilter(request, response);
@@ -78,7 +78,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
         if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
-            return headerAuth.substring(7); // Ambil hanya tokennya
+            return headerAuth.substring(7);
         }
         return null;
     }
