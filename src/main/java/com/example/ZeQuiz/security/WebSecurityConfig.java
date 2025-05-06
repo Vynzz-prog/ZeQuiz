@@ -25,7 +25,6 @@ public class WebSecurityConfig {
     @Autowired
     private AuthEntryPoint unauthorizedHandler;
 
-
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
         return new AuthTokenFilter(jwtUtil, userDetailsService);
@@ -50,7 +49,10 @@ public class WebSecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/zequiz/auth/**").permitAll()
+                        .requestMatchers(
+                                "/zequiz/auth/**",              // login & register
+                                "/zequiz/soal/uploads/**"       // ✅ gambar soal bisa diakses publik
+                        ).permitAll()
                         .anyRequest().authenticated()
                 );
 
