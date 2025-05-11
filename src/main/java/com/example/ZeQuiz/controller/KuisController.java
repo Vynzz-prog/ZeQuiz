@@ -14,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,6 @@ public class KuisController {
     @Autowired
     private KuisSoalRepository kuisSoalRepository;
 
-
     @PostMapping("/buat")
     public ResponseEntity<?> buatKuis(@RequestParam Long topikId,
                                       @RequestBody Kuis kuisInput,
@@ -40,12 +40,19 @@ public class KuisController {
         try {
             User guru = userService.findByUsername(userDetails.getUsername());
             Kuis kuis = kuisService.buatKuis(guru.getId(), topikId, kuisInput);
+
             return ResponseEntity.ok(Map.of(
                     "id", kuis.getId(),
                     "nama", kuis.getNama(),
                     "timer", kuis.getTimer(),
                     "jumlahSoal", kuis.getJumlahSoal(),
                     "tanggal", kuis.getTanggal().format(DateTimeFormatter.ISO_DATE),
+                    "waktuMulai", kuis.getWaktuMulai() != null
+                            ? kuis.getWaktuMulai().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                            : null,
+                    "waktuSelesai", kuis.getWaktuSelesai() != null
+                            ? kuis.getWaktuSelesai().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                            : null,
                     "topik", Map.of(
                             "id", kuis.getTopik().getId(),
                             "nama", kuis.getTopik().getNama()
@@ -60,7 +67,6 @@ public class KuisController {
         }
     }
 
-
     @GetMapping("/kelas/{kelasId}")
     public ResponseEntity<?> getKuisByKelas(@PathVariable Long kelasId) {
         try {
@@ -73,6 +79,12 @@ public class KuisController {
                             .jumlahSoal(k.getJumlahSoal())
                             .tanggal(k.getTanggal().toString())
                             .namaTopik(k.getTopik().getNama())
+                            .waktuMulai(k.getWaktuMulai() != null
+                                    ? k.getWaktuMulai().format (DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))
+                                    : null)
+                            .waktuSelesai(k.getWaktuSelesai() != null
+                                    ? k.getWaktuSelesai().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))
+                                    : null)
                             .build())
                     .toList();
             return ResponseEntity.ok(responseList);
@@ -81,11 +93,9 @@ public class KuisController {
         }
     }
 
-
     @GetMapping("/{kuisId}/soal")
     public ResponseEntity<?> getSoalByKuis(@PathVariable Long kuisId,
                                            @AuthenticationPrincipal UserDetails userDetails) {
-
         User user = userService.findByUsername(userDetails.getUsername());
         Kuis kuis = kuisService.findById(kuisId);
 
@@ -93,6 +103,15 @@ public class KuisController {
                 !kuis.getKelas().getId().equals(user.getKelas().getId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("pesan", "Akses ditolak: hanya siswa di kelas yang sama yang dapat mengerjakan kuis ini"));
+        }
+
+        // ✅ Validasi waktu
+        LocalDateTime now = LocalDateTime.now();
+        if (kuis.getWaktuMulai() != null && kuis.getWaktuSelesai() != null) {
+            if (now.isBefore(kuis.getWaktuMulai()) || now.isAfter(kuis.getWaktuSelesai())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("pesan", "Kuis hanya bisa dikerjakan pada waktu yang telah ditentukan"));
+            }
         }
 
         List<SoalDTO> soal = kuisService.getSoalDariKuis(kuisId).stream()
@@ -109,4 +128,5 @@ public class KuisController {
 
         return ResponseEntity.ok(soal);
     }
+
 }

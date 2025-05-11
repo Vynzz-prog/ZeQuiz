@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,7 +32,9 @@ public class KuisService {
     @Autowired
     private KelasRepository kelasRepository;
 
-
+    /**
+     * Guru membuat kuis baru berdasarkan topik.
+     */
     public Kuis buatKuis(Long userId, Long topikId, Kuis kuisInput) {
         // Cari guru
         User guru = userRepository.findById(userId)
@@ -57,6 +60,13 @@ public class KuisService {
             throw new RuntimeException("Jumlah soal pada topik tidak mencukupi");
         }
 
+        // Validasi waktuMulai dan waktuSelesai (jika ada)
+        if (kuisInput.getWaktuMulai() != null && kuisInput.getWaktuSelesai() != null) {
+            if (kuisInput.getWaktuMulai().isAfter(kuisInput.getWaktuSelesai())) {
+                throw new RuntimeException("Waktu mulai tidak boleh setelah waktu selesai.");
+            }
+        }
+
         // Set data kuis
         kuisInput.setGuru(guru);
         kuisInput.setKelas(guru.getKelas());
@@ -80,23 +90,26 @@ public class KuisService {
         return savedKuis;
     }
 
-
-     //lia daftar kuis berdasarkan kelas.
-
+    /**
+     * Daftar kuis berdasarkan kelas.
+     */
     public List<Kuis> getKuisByKelas(Long kelasId) {
         Kelas kelas = kelasRepository.findById(kelasId)
                 .orElseThrow(() -> new RuntimeException("Kelas tidak ditemukan"));
         return kuisRepository.findByKelas(kelas);
     }
 
-
-    //Cari kuis berdasarkan ID.
-
+    /**
+     * Cari kuis berdasarkan ID.
+     */
     public Kuis findById(Long id) {
         return kuisRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Kuis tidak ditemukan"));
     }
 
+    /**
+     * Ambil semua soal dari kuis.
+     */
     public List<Soal> getSoalDariKuis(Long kuisId) {
         Kuis kuis = kuisRepository.findById(kuisId)
                 .orElseThrow(() -> new RuntimeException("Kuis tidak ditemukan"));
@@ -106,5 +119,4 @@ public class KuisService {
                 .map(KuisSoal::getSoal)
                 .collect(Collectors.toList());
     }
-
 }

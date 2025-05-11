@@ -2,10 +2,8 @@ package com.example.ZeQuiz.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import com.example.ZeQuiz.entity.Kelas;
-
-
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Setter
@@ -23,13 +21,18 @@ public class Kuis {
     @Column(nullable = false)
     private String nama;
 
-
     private int timer;
 
     @Column(name = "jumlah_soal")
     private int jumlahSoal;
 
     private LocalDate tanggal;
+
+    @Column(name = "waktu_mulai")
+    private LocalDateTime waktuMulai;
+
+    @Column(name = "waktu_selesai")
+    private LocalDateTime waktuSelesai;
 
     @ManyToOne
     @JoinColumn(name = "topik_id", nullable = false)
@@ -42,5 +45,4 @@ public class Kuis {
     @ManyToOne
     @JoinColumn(name = "kelas_id", nullable = false)
     private Kelas kelas;
-
 }

@@ -76,20 +76,24 @@
 ```json
 [
   {
-    "id": 1,
-    "namaKuis": "Kuis 1",
-    "timer": 60,
-    "jumlahSoal": 2,
-    "tanggal": "2025-04-24",
-    "namaTopik": "Perkalian"
+    "id": 27,
+    "namaKuis": "lllll",
+    "timer": 30,
+    "jumlahSoal": 1,
+    "tanggal": "2025-05-10",
+    "namaTopik": "coba",
+    "waktuMulai": null,
+    "waktuSelesai": null
   },
   {
-    "id": 6,
-    "namaKuis": "Kuis Matematika Perkalian",
+    "id": 29,
+    "namaKuis": "Kuis Matematika Bab 2",
     "timer": 120,
     "jumlahSoal": 1,
-    "tanggal": "2025-05-03",
-    "namaTopik": "Aljabar"
+    "tanggal": "2025-05-11",
+    "namaTopik": "gambar",
+    "waktuMulai": "2025-05-11T02:00",
+    "waktuSelesai": "2025-05-11T04:00"
   }
 ]
 ```

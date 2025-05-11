@@ -108,28 +108,30 @@ topikId = value
 ### request body :
 ```json
 {
-  
-  "nama": "Kuis Matematika Perkalian",
+  "nama": "Kuis Matematika Bab 2",
   "timer": 120,
-  "jumlahSoal": 1
-
+  "jumlahSoal": 1,
+  "waktuMulai": "2025-05-11T02:00:00",
+  "waktuSelesai": "2025-05-11T04:00:00"
 }
 ```
 
 ### response body (Success) :
 ```json
 {
-  "tanggal": "2025-05-03",
-  "id": 6,
-  "nama": "Kuis Matematika Perkalian",
-  "jumlahSoal": 1,
-  "topik": {
-    "id": 5,
-    "nama": "Aljabar"
-  },
+  "waktuSelesai": "2025-05-11T04:00:00",
+  "nama": "Kuis Matematika Bab 3",
+  "tanggal": "2025-05-11",
+  "jumlahSoal": 2,
   "kelas": {
-    "id": 2,
-    "nama": "Kelas 5"
+    "id": 1,
+    "nama": "Kelas 4"
+  },
+  "waktuMulai": "2025-05-11T02:00:00",
+  "id": 30,
+  "topik": {
+    "id": 11,
+    "nama": "gambar"
   },
   "timer": 120
 }

@@ -11,10 +11,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class KuisSimpleDTO {
     private Long id;
+    private String nama;
     private Integer timer;
     private Integer jumlahSoal;
     private String tanggal;
-    private String nama;
     private TopikSimpleDTO topik;
     private KelasSimpleDTO kelas;
 }

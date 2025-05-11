@@ -71,24 +71,24 @@
 ### response body (Success) :
 ```json
 {
-  "id": 19,
+  "id": 60,
   "kuis": {
-    "id": 6,
+    "id": 29,
+    "nama": "Kuis Matematika Bab 2",
     "timer": 120,
     "jumlahSoal": 1,
-    "tanggal": "2025-05-03",
-    "nama": "Kuis Matematika Perkalian",
+    "tanggal": "2025-05-11",
     "topik": {
-      "id": 5,
-      "nama": "Aljabar"
+      "id": 11,
+      "nama": "gambar"
     },
     "kelas": {
-      "id": 2,
-      "nama": "Kelas 5"
+      "id": 1,
+      "nama": "Kelas 4"
     }
   },
-  "siswaId": 9,
-  "skor": 0
+  "siswaId": 5,
+  "skor": 100
 }
 ```
 
@@ -109,24 +109,24 @@
 ### response body (Success) :
 ```json
 {
-  "id": 17,
+  "id": 60,
   "kuis": {
-    "id": 4,
+    "id": 29,
+    "nama": "Kuis Matematika Bab 2",
     "timer": 120,
-    "jumlahSoal": 2,
-    "tanggal": "2025-04-29",
-    "nama": "Kuis Harian",
+    "jumlahSoal": 1,
+    "tanggal": "2025-05-11",
     "topik": {
-      "id": 1,
-      "nama": "Perkalian"
+      "id": 11,
+      "nama": "gambar"
     },
     "kelas": {
       "id": 1,
       "nama": "Kelas 4"
     }
   },
-  "siswaId": 7,
-  "skor": 50
+  "siswaId": 5,
+  "skor": 100
 }
 ```
 

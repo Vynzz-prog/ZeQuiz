@@ -7,8 +7,6 @@ import com.example.ZeQuiz.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
-
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,7 +24,6 @@ public class SkorService {
 
     @Autowired
     private UserRepository userRepository;
-
 
     public Skor hitungSkor(User user, Kuis kuis, List<JawabanSiswa> jawabanSiswaList) {
 
@@ -75,8 +72,26 @@ public class SkorService {
     }
 
     public Skor getSkorByUserAndKuis(User user, Kuis kuis) {
-        return skorRepository.findBySiswaAndKuis(user, kuis)
-                .orElseThrow(() -> new RuntimeException("Skor tidak ditemukan"));
+        Optional<Skor> existing = skorRepository.findBySiswaAndKuis(user, kuis);
+        if (existing.isPresent()) {
+            return existing.get();
+        }
+
+        // Cek apakah kuis sudah lewat dan belum dikerjakan
+        LocalDateTime now = LocalDateTime.now();
+        if (kuis.getWaktuSelesai() != null) {
+            if (now.isAfter(kuis.getWaktuSelesai())) {
+                // Catat skor 0 otomatis karena tidak mengerjakan
+                Skor skor = new Skor();
+                skor.setSiswa(user);
+                skor.setKuis(kuis);
+                skor.setSkor(0);
+                skor.setWaktuSelesai(now);
+                return skorRepository.save(skor);
+            }
+        }
+
+        throw new RuntimeException("Skor tidak ditemukan");
     }
 
     public List<Skor> getSkorByKuis(Kuis kuis) {
