@@ -7,6 +7,8 @@ import com.example.ZeQuiz.repository.SoalRepository;
 import com.example.ZeQuiz.repository.TopikRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 
@@ -18,7 +20,6 @@ public class SoalService {
 
     @Autowired
     private TopikRepository topikRepository;
-
 
     public Soal tambahSoal(User guru, Long topikId, Soal inputSoal) {
         validateGuru(guru);
@@ -34,7 +35,6 @@ public class SoalService {
         return soalRepository.save(inputSoal);
     }
 
-
     public void hapusSoal(Long soalId, User guru) {
         validateGuru(guru);
 
@@ -47,7 +47,6 @@ public class SoalService {
 
         soalRepository.delete(soal);
     }
-
 
     public List<Soal> getSoalByTopik(Long topikId, User guru) {
         validateGuru(guru);
@@ -62,6 +61,18 @@ public class SoalService {
         return soalRepository.findByTopik(topik);
     }
 
+    public Page<Soal> getSoalByTopikWithPagination(Long topikId, User guru, int page, int size) {
+        validateGuru(guru);
+
+        Topik topik = topikRepository.findById(topikId)
+                .orElseThrow(() -> new RuntimeException("Topik tidak ditemukan"));
+
+        if (!topik.getKelas().getId().equals(guru.getKelas().getId())) {
+            throw new RuntimeException("Guru tidak memiliki akses ke topik ini");
+        }
+
+        return soalRepository.findByTopik_Id(topikId, PageRequest.of(page, size));
+    }
 
     private void validateGuru(User user) {
         if (!"GURU".equalsIgnoreCase(user.getRole())) {

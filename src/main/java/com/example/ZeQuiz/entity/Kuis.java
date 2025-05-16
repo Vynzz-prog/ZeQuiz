@@ -34,7 +34,7 @@ public class Kuis {
     @Column(name = "waktu_selesai")
     private LocalDateTime waktuSelesai;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "topik_id", nullable = false)
     private Topik topik;
 
@@ -42,7 +42,7 @@ public class Kuis {
     @JoinColumn(name = "guru_id", nullable = false)
     private User guru;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "kelas_id", nullable = false)
     private Kelas kelas;
 }

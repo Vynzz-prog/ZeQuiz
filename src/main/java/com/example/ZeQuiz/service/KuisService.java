@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,14 +60,19 @@ public class KuisService {
             throw new RuntimeException("Jumlah soal pada topik tidak mencukupi");
         }
 
-        // Validasi waktuMulai dan waktuSelesai (jika ada)
+        // Validasi waktuMulai dan waktuSelesai (jika diisi)
         if (kuisInput.getWaktuMulai() != null && kuisInput.getWaktuSelesai() != null) {
             if (kuisInput.getWaktuMulai().isAfter(kuisInput.getWaktuSelesai())) {
                 throw new RuntimeException("Waktu mulai tidak boleh setelah waktu selesai.");
             }
         }
 
-        // Set data kuis
+        // Generate nama kuis: "Kuis ke - X"
+        long jumlahKuisSebelumnya = kuisRepository.countByKelas(guru.getKelas());
+        String namaKuisBaru = "Kuis ke - " + (jumlahKuisSebelumnya + 1);
+        kuisInput.setNama(namaKuisBaru);
+
+        // Set data lainnya
         kuisInput.setGuru(guru);
         kuisInput.setKelas(guru.getKelas());
         kuisInput.setTopik(topik);
@@ -85,7 +90,7 @@ public class KuisService {
             kuisSoalRepository.save(kuisSoal);
         }
 
-        System.out.println("Guru " + guru.getUsername() + " membuat kuis baru di topik: " + topik.getNama());
+        System.out.println("✅ Guru " + guru.getUsername() + " membuat " + savedKuis.getNama());
 
         return savedKuis;
     }
@@ -111,12 +116,17 @@ public class KuisService {
      * Ambil semua soal dari kuis.
      */
     public List<Soal> getSoalDariKuis(Long kuisId) {
-        Kuis kuis = kuisRepository.findById(kuisId)
-                .orElseThrow(() -> new RuntimeException("Kuis tidak ditemukan"));
-
+        Kuis kuis = findById(kuisId);
         List<KuisSoal> kuisSoalList = kuisSoalRepository.findByKuis(kuis);
-        return kuisSoalList.stream()
+
+        List<Soal> soalList = kuisSoalList.stream()
                 .map(KuisSoal::getSoal)
                 .collect(Collectors.toList());
+
+        // ✅ Acak urutan soal sebelum dikirim ke frontend
+        Collections.shuffle(soalList);
+
+        return soalList;
     }
+
 }

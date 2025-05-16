@@ -108,7 +108,6 @@ topikId = value
 ### request body :
 ```json
 {
-  "nama": "Kuis Matematika Bab 2",
   "timer": 120,
   "jumlahSoal": 1,
   "waktuMulai": "2025-05-11T02:00:00",
@@ -119,21 +118,21 @@ topikId = value
 ### response body (Success) :
 ```json
 {
-  "waktuSelesai": "2025-05-11T04:00:00",
-  "nama": "Kuis Matematika Bab 3",
-  "tanggal": "2025-05-11",
-  "jumlahSoal": 2,
-  "kelas": {
-    "id": 1,
-    "nama": "Kelas 4"
-  },
-  "waktuMulai": "2025-05-11T02:00:00",
-  "id": 30,
+  "timer": 60,
   "topik": {
     "id": 11,
     "nama": "gambar"
   },
-  "timer": 120
+  "id": 44,
+  "waktuMulai": "2025-05-12T17:10:00",
+  "kelas": {
+    "id": 1,
+    "nama": "Kelas 4"
+  },
+  "jumlahSoal": 2,
+  "tanggal": "2025-05-12",
+  "nama": "Kuis ke - 12",
+  "waktuSelesai": "2025-05-12T17:20:00"
 }
 ```
 
@@ -304,3 +303,141 @@ gambarFile: (optional)
 ```
 - akses di tolak karena guru mo coba akses kuis dari kelas lain punya
 
+### Lihat Soal per Topik Pake Halaman
+## Endpoint : GET zequiz/soal/page?topikId=11&page=0&size=5
+
+- params
+- topikId
+- page = for halaman ke berapa (dimuali dari 0)
+- size = jumlah soal yang ingin di tampilkan
+
+### response body (Success) :
+```json
+{
+  "content": [
+    {
+      "id": 23,
+      "topik": {
+        "id": 11,
+        "nama": "gambar",
+        "kelas": {
+          "id": 1,
+          "nama": "Kelas 4"
+        }
+      },
+      "pertanyaan": "hahah",
+      "gambar": null,
+      "opsiA": "A.hah",
+      "opsiB": "B.hah",
+      "opsiC": "C.a",
+      "opsiD": "D.bzb",
+      "jawabanBenar": "D"
+    },
+    {
+      "id": 25,
+      "topik": {
+        "id": 11,
+        "nama": "gambar",
+        "kelas": {
+          "id": 1,
+          "nama": "Kelas 4"
+        }
+      },
+      "pertanyaan": "bab",
+      "gambar": null,
+      "opsiA": "A.s",
+      "opsiB": "B.zz",
+      "opsiC": "C.az",
+      "opsiD": "D.az",
+      "jawabanBenar": "D"
+    },
+    {
+      "id": 26,
+      "topik": {
+        "id": 11,
+        "nama": "gambar",
+        "kelas": {
+          "id": 1,
+          "nama": "Kelas 4"
+        }
+      },
+      "pertanyaan": "tai",
+      "gambar": "1746557956771_IMG-20250506-WA0011.jpg",
+      "opsiA": "A.hah",
+      "opsiB": "B.hehe",
+      "opsiC": "C.tata",
+      "opsiD": "D.huhu",
+      "jawabanBenar": "D"
+    },
+    {
+      "id": 27,
+      "topik": {
+        "id": 11,
+        "nama": "gambar",
+        "kelas": {
+          "id": 1,
+          "nama": "Kelas 4"
+        }
+      },
+      "pertanyaan": "ucup",
+      "gambar": "1746559071569_IMG-20250507-WA0001.jpg",
+      "opsiA": "A.bab",
+      "opsiB": "B.baba",
+      "opsiC": "C.haha",
+      "opsiD": "D.babab",
+      "jawabanBenar": "D"
+    },
+    {
+      "id": 29,
+      "topik": {
+        "id": 11,
+        "nama": "gambar",
+        "kelas": {
+          "id": 1,
+          "nama": "Kelas 4"
+        }
+      },
+      "pertanyaan": "tataat",
+      "gambar": null,
+      "opsiA": "A.jaha",
+      "opsiB": "B.haha",
+      "opsiC": "C.yB",
+      "opsiD": "D.bB",
+      "jawabanBenar": "A"
+    }
+  ],
+  "pageable": {
+    "pageNumber": 0,
+    "pageSize": 5,
+    "sort": {
+      "empty": true,
+      "sorted": false,
+      "unsorted": true
+    },
+    "offset": 0,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": true,
+  "totalElements": 5,
+  "totalPages": 1,
+  "first": true,
+  "size": 5,
+  "number": 0,
+  "sort": {
+    "empty": true,
+    "sorted": false,
+    "unsorted": true
+  },
+  "numberOfElements": 5,
+  "empty": false
+}
+```
+### response body (Faild) :
+```json
+{
+
+  "pesan": "Akses ditolak ke kuis ini" 
+
+}
+```

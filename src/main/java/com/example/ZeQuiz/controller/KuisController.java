@@ -13,12 +13,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("/zequiz/kuis")
@@ -41,31 +41,41 @@ public class KuisController {
             User guru = userService.findByUsername(userDetails.getUsername());
             Kuis kuis = kuisService.buatKuis(guru.getId(), topikId, kuisInput);
 
-            return ResponseEntity.ok(Map.of(
-                    "id", kuis.getId(),
-                    "nama", kuis.getNama(),
-                    "timer", kuis.getTimer(),
-                    "jumlahSoal", kuis.getJumlahSoal(),
-                    "tanggal", kuis.getTanggal().format(DateTimeFormatter.ISO_DATE),
-                    "waktuMulai", kuis.getWaktuMulai() != null
-                            ? kuis.getWaktuMulai().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                            : null,
-                    "waktuSelesai", kuis.getWaktuSelesai() != null
-                            ? kuis.getWaktuSelesai().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-                            : null,
-                    "topik", Map.of(
-                            "id", kuis.getTopik().getId(),
-                            "nama", kuis.getTopik().getNama()
-                    ),
-                    "kelas", Map.of(
-                            "id", kuis.getKelas().getId(),
-                            "nama", kuis.getKelas().getNama()
-                    )
-            ));
+            // Tangani kemungkinan null secara aman
+            Map<String, Object> topikMap = new java.util.HashMap<>();
+            if (kuis.getTopik() != null) {
+                topikMap.put("id", kuis.getTopik().getId());
+                topikMap.put("nama", kuis.getTopik().getNama());
+            }
+
+            Map<String, Object> kelasMap = new java.util.HashMap<>();
+            if (kuis.getKelas() != null) {
+                kelasMap.put("id", kuis.getKelas().getId());
+                kelasMap.put("nama", kuis.getKelas().getNama());
+            }
+
+            Map<String, Object> response = new java.util.HashMap<>();
+            response.put("id", kuis.getId());
+            response.put("nama", kuis.getNama());
+            response.put("timer", kuis.getTimer());
+            response.put("jumlahSoal", kuis.getJumlahSoal());
+            response.put("tanggal", kuis.getTanggal().format(DateTimeFormatter.ISO_DATE));
+            response.put("waktuMulai", kuis.getWaktuMulai() != null
+                    ? kuis.getWaktuMulai().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                    : null);
+            response.put("waktuSelesai", kuis.getWaktuSelesai() != null
+                    ? kuis.getWaktuSelesai().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                    : null);
+            response.put("topik", topikMap);
+            response.put("kelas", kelasMap);
+
+            return ResponseEntity.ok(response);
+
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("pesan", e.getMessage()));
         }
     }
+
 
     @GetMapping("/kelas/{kelasId}")
     public ResponseEntity<?> getKuisByKelas(@PathVariable Long kelasId) {
@@ -128,5 +138,19 @@ public class KuisController {
 
         return ResponseEntity.ok(soal);
     }
+
+    @GetMapping("/{kuisId}")
+    public ResponseEntity<?> getKuisById(@PathVariable Long kuisId) {
+        try {
+            Kuis kuis = kuisService.findById(kuisId); // pastikan method ini sudah ada di service
+            Map<String, Object> response = new java.util.HashMap<>();
+            response.put("id", kuis.getId());
+            response.put("nama", kuis.getNama());
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("pesan", e.getMessage()));
+        }
+    }
+
 
 }

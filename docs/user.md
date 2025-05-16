@@ -104,3 +104,23 @@
   "pesan" : "unauthorized"
 }
 ```
+
+## Lihat detail kuis
+### Endpoint : GET zequiz/kuis/{kuisId}
+
+- contoh zequiz/kuis/61
+
+### response body (Success) :
+```json
+{
+    "nama": "Kuis ke - 17",
+    "id": 61
+}
+```
+
+### response body (Faild) :
+```json
+{
+  "pesan" : "unauthorized"
+}
+```
