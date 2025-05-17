@@ -9,9 +9,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import com.example.ZeQuiz.repository.TopikRepository;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("zequiz/topik")
@@ -22,6 +25,9 @@ public class TopikController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TopikRepository topikRepository;
 
 
     @PostMapping("/buat")
@@ -80,4 +86,23 @@ public class TopikController {
             return ResponseEntity.badRequest().body(Map.of("pesan", e.getMessage()));
         }
     }
+
+    @PutMapping("/edit/{id}")
+    public ResponseEntity<String> editTopik(@PathVariable Long id, @RequestBody Map<String, String> request) {
+        String newName = request.get("namaTopik");
+        if (newName == null || newName.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Nama topik tidak boleh kosong");
+        }
+
+        Optional<Topik> optionalTopik = topikRepository.findById(id);
+        if (optionalTopik.isPresent()) {
+            Topik topik = optionalTopik.get();
+            topik.setNama(newName);
+            topikRepository.save(topik);
+            return ResponseEntity.ok("Topik berhasil diperbarui");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Topik tidak ditemukan");
+        }
+    }
+
 }
